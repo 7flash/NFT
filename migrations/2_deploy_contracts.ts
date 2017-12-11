@@ -1,5 +1,5 @@
-var TestContract = artifacts.require("TestContract");
+const NFT = artifacts.require("NFT");
 
-module.exports = function(deployer: any) {
-  deployer.deploy(TestContract);
+module.exports = (deployer: any) => {
+    deployer.deploy(NFT);
 };

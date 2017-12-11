@@ -1,5 +1,5 @@
-import * as Web3 from "web3";
 import * as BigNumber from "bignumber.js";
+import * as Web3 from "web3";
 
 type Address = string;
 type TransactionOptions = Partial<Transaction>;
@@ -19,6 +19,39 @@ interface Transaction {
   input: string;
 }
 
+export interface TransactionReturnPayload {
+    tx: string;
+    receipt: TransactionReceipt;
+    logs: TransactionLog[];
+}
+
+interface TransactionReceipt {
+    transactionHash: string;
+    transactionIndex: UInt;
+    blockHash: string;
+    blockNumber: UInt;
+    gasUsed: UInt;
+    cumulativeGasUsed: UInt;
+    contractAddress: Address;
+    logs: TransactionLog[];
+    status: UInt;
+}
+
+export interface Log {
+    event: string;
+    args: object;
+}
+
+interface TransactionLog extends Log {
+    logIndex: UInt;
+    transactionIndex: UInt;
+    transactionHash: string;
+    blockHash: string;
+    blockNumber: UInt;
+    address: string;
+    type: string;
+}
+
 interface PayableTransaction extends Transaction {
   value: UInt;
 }
@@ -36,21 +69,27 @@ interface Contract<T> {
 
 export interface Artifacts {
     require(name: "Migrations"): Contract<MigrationsContractInstance>;
-    require(name: "TestContract"): Contract<TestContractInstance>;
+    require(name: "NFT"): Contract<NFTContractInstance>;
 }
 
 export interface MigrationsContractInstance extends ContractInstance {
     setCompleted(completed: UInt, options?: Transaction): Promise<void>;
-    upgrade(new_address: Address): Promise<void>;
+    upgrade(newAddress: Address): Promise<void>;
 }
 
-export interface TestContractInstance extends ContractInstance {
-    count: UInt;
-    someValue: Boolean;
-    counterWithOffset(
-        offset: UInt,
-        options?: TransactionOptions
-    ): Promise<BigNumber.BigNumber>;
-    returnAll(options?: TransactionOptions): Promise<[BigNumber.BigNumber, BigNumber.BigNumber]>;
-    countUp(options?: PayableTransactionOptions): Promise<void>;
+export interface NFTContractInstance extends ContractInstance {
+    name(): Promise<string>;
+    symbol(): Promise<string>;
+    totalSupply(): Promise<UInt>;
+    balanceOf(owner: Address): Promise<UInt>;
+    ownerOf(tokenId: UInt): Promise<Address>;
+    isERC721(): Promise<boolean>;
+    approve(to: Address, tokenId: UInt, options?: TransactionOptions):
+        Promise<TransactionReturnPayload>;
+    transfer(to: Address, tokenId: UInt, options?: TransactionOptions):
+        Promise<TransactionReturnPayload>;
+    transferFrom(from: Address, to: Address, tokenId: UInt, options?: TransactionOptions):
+        Promise<TransactionReturnPayload>;
+    tokenOfOwnerByIndex(owner: Address, index: UInt): Promise<UInt>;
+    tokenMetadata(tokenId: UInt): Promise<string>;
 }

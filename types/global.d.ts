@@ -9,8 +9,9 @@ declare global {
   function before(executionBlock: ExecutionBlock): void;
   function beforeEach(executionBlock: ExecutionBlock): void;
   function describe(name: string, executionBlock: ExecutionBlock): void;
-  function it(name: string, executionBlock: ExecutionBlock): void;
+  function it(name: string, executionBlock?: ExecutionBlock): void;
 
   var artifacts: Artifacts;
   var web3: Web3;
+  var module: any;
 }
