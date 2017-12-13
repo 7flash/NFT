@@ -15,6 +15,11 @@ declare namespace Chai {
     }
     interface Assertion {
         bignumber: Assertion;
+        solidityLogs: Assertion;
+    }
+    interface PromisedAssertion {
+        bignumber: Assertion;
+        solidityLogs: Assertion;
     }
 }
 /* tslint:enable */

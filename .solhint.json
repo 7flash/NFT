@@ -1,0 +1,7 @@
+{
+    "extends": "default",
+    "rules": {
+      "no-simple-event-func-name": false,
+      "indent": ["warn", 4]
+    }
+}

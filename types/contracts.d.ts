@@ -69,7 +69,8 @@ interface Contract<T> {
 
 export interface Artifacts {
     require(name: "Migrations"): Contract<MigrationsContractInstance>;
-    require(name: "NFT"): Contract<NFTContractInstance>;
+    require(name: "NonFungibleToken"): Contract<NFTContractInstance>;
+    require(name: "MintableNonFungibleToken"): Contract<MintableNFTContractInstance>;
 }
 
 export interface MigrationsContractInstance extends ContractInstance {
@@ -83,7 +84,6 @@ export interface NFTContractInstance extends ContractInstance {
     totalSupply(): Promise<UInt>;
     balanceOf(owner: Address): Promise<UInt>;
     ownerOf(tokenId: UInt): Promise<Address>;
-    isERC721(): Promise<boolean>;
     approve(to: Address, tokenId: UInt, options?: TransactionOptions):
         Promise<TransactionReturnPayload>;
     transfer(to: Address, tokenId: UInt, options?: TransactionOptions):
@@ -92,4 +92,10 @@ export interface NFTContractInstance extends ContractInstance {
         Promise<TransactionReturnPayload>;
     tokenOfOwnerByIndex(owner: Address, index: UInt): Promise<UInt>;
     tokenMetadata(tokenId: UInt): Promise<string>;
+    implementsERC721(): Promise<boolean>;
+}
+
+export interface MintableNFTContractInstance extends NFTContractInstance {
+    mint(owner: Address, tokenId: UInt, metadata: string):
+        Promise<TransactionReturnPayload>;
 }

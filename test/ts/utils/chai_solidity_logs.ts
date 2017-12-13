@@ -11,7 +11,7 @@ import * as _ from "lodash";
  * circumvent these issues.
  */
 export default function ChaiSolidityLogs(chai: any, utils: any): void {
-    chai.Assertion.addProperty('solidityLogs', function () {
+    chai.Assertion.addProperty('solidityLogs', () => {
         utils.flag(this, 'solidityLogs', true);
     });
 
