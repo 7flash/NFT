@@ -7,7 +7,7 @@ import {
     TransactionReturnPayload,
 } from "../../types/contracts";
 import {chaiSetup} from "./utils/chai_setup.js";
-import {REVERT_ERROR} from "./utils/constants";
+import {INVALID_OPCODE, REVERT_ERROR} from "./utils/constants";
 import {LogApproval, LogTransfer} from "./utils/logs";
 
 chaiSetup.configure();
@@ -26,8 +26,8 @@ contract("Non-Fungible Token", (ACCOUNTS) => {
     const TOKEN_OWNER_3 = ACCOUNTS[3];
 
     const TOKEN_ID_1 = 0;
-    const TOKEN_ID_2 = 2 ** 64;
-    const TOKEN_ID_3 = 2 ** 128;
+    const TOKEN_ID_2 = (new BigNumber.BigNumber(2)).pow(64); // 2 ** 64
+    const TOKEN_ID_3 = (new BigNumber.BigNumber(2)).pow(128); // 2 ** 128
     const NONEXISTENT_TOKEN_ID = 13;
 
     const METADATA_STRING_1 = "ipfs://QmZU8bKEG8fhcQwKoLHfjtJoKBzvUT5LFR3f8dEz86WdVe";
@@ -59,6 +59,37 @@ contract("Non-Fungible Token", (ACCOUNTS) => {
 
             await mintableNft.mint(TOKEN_OWNER_3, TOKEN_ID_3, METADATA_STRING_3);
             await expect(mintableNft.totalSupply()).to.eventually.bignumber.equal(3);
+        });
+    });
+
+    describe('#balanceOf()', async () => {
+        it("should return 1 for each owner's balance", async () => {
+            await expect(mintableNft.balanceOf(TOKEN_OWNER_1))
+                .to.eventually.bignumber.equal(1);
+            await expect(mintableNft.balanceOf(TOKEN_OWNER_2))
+                .to.eventually.bignumber.equal(1);
+            await expect(mintableNft.balanceOf(TOKEN_OWNER_3))
+                .to.eventually.bignumber.equal(1);
+        });
+    });
+
+    describe('#tokenOfOwnerByIndex()', async () => {
+        it("should return current token at index 0 for each user", async () => {
+            await expect(mintableNft.tokenOfOwnerByIndex(TOKEN_OWNER_1, 0))
+                .to.eventually.bignumber.equal(TOKEN_ID_1);
+            await expect(mintableNft.tokenOfOwnerByIndex(TOKEN_OWNER_2, 0))
+                .to.eventually.bignumber.equal(TOKEN_ID_2);
+            await expect(mintableNft.tokenOfOwnerByIndex(TOKEN_OWNER_3, 0))
+                .to.eventually.bignumber.equal(TOKEN_ID_3);
+        });
+
+        it("should throw if called at index > balanceOf(owner)", async () => {
+            await expect(mintableNft.tokenOfOwnerByIndex(TOKEN_OWNER_1, 1))
+                .to.eventually.be.rejectedWith(INVALID_OPCODE);
+            await expect(mintableNft.tokenOfOwnerByIndex(TOKEN_OWNER_2, 1))
+                .to.eventually.be.rejectedWith(INVALID_OPCODE);
+            await expect(mintableNft.tokenOfOwnerByIndex(TOKEN_OWNER_3, 1))
+                .to.eventually.be.rejectedWith(INVALID_OPCODE);
         });
     });
 
@@ -108,6 +139,26 @@ contract("Non-Fungible Token", (ACCOUNTS) => {
                 await expect(mintableNft.balanceOf(TOKEN_OWNER_3))
                     .to.eventually.bignumber.equal(1);
             });
+
+            it("should update owners' iterable token lists", async () => {
+                // TOKEN_OWNER_1
+                await expect(mintableNft.tokenOfOwnerByIndex(TOKEN_OWNER_1, 0))
+                    .to.eventually.be.rejectedWith(INVALID_OPCODE);
+
+                // TOKEN_OWNER_2
+                await expect(mintableNft.tokenOfOwnerByIndex(TOKEN_OWNER_2, 0))
+                    .to.eventually.bignumber.equal(TOKEN_ID_2);
+                await expect(mintableNft.tokenOfOwnerByIndex(TOKEN_OWNER_2, 1))
+                    .to.eventually.bignumber.equal(TOKEN_ID_1);
+                await expect(mintableNft.tokenOfOwnerByIndex(TOKEN_OWNER_2, 2))
+                    .to.eventually.be.rejectedWith(INVALID_OPCODE);
+
+                // TOKEN_OWNER_3
+                await expect(mintableNft.tokenOfOwnerByIndex(TOKEN_OWNER_3, 0))
+                    .to.eventually.bignumber.equal(TOKEN_ID_3);
+                await expect(mintableNft.tokenOfOwnerByIndex(TOKEN_OWNER_3, 1))
+                    .to.eventually.be.rejectedWith(INVALID_OPCODE);
+            });
         });
 
         describe("user transfers token he no longer owns", async () => {
@@ -155,6 +206,26 @@ contract("Non-Fungible Token", (ACCOUNTS) => {
                 await expect(mintableNft.balanceOf(TOKEN_OWNER_3))
                     .to.eventually.bignumber.equal(1);
             });
+
+            it("should not modify owners' iterable token lists", async () => {
+                // TOKEN_OWNER_1
+                await expect(mintableNft.tokenOfOwnerByIndex(TOKEN_OWNER_1, 0))
+                    .to.eventually.be.rejectedWith(INVALID_OPCODE);
+
+                // TOKEN_OWNER_2
+                await expect(mintableNft.tokenOfOwnerByIndex(TOKEN_OWNER_2, 0))
+                    .to.eventually.bignumber.equal(TOKEN_ID_2);
+                await expect(mintableNft.tokenOfOwnerByIndex(TOKEN_OWNER_2, 1))
+                    .to.eventually.bignumber.equal(TOKEN_ID_1);
+                await expect(mintableNft.tokenOfOwnerByIndex(TOKEN_OWNER_2, 2))
+                    .to.eventually.be.rejectedWith(INVALID_OPCODE);
+
+                // TOKEN_OWNER_3
+                await expect(mintableNft.tokenOfOwnerByIndex(TOKEN_OWNER_3, 0))
+                    .to.eventually.bignumber.equal(TOKEN_ID_3);
+                await expect(mintableNft.tokenOfOwnerByIndex(TOKEN_OWNER_3, 1))
+                    .to.eventually.be.rejectedWith(INVALID_OPCODE);
+            });
         });
 
 
@@ -196,6 +267,26 @@ contract("Non-Fungible Token", (ACCOUNTS) => {
                     .to.eventually.bignumber.equal(2);
                 await expect(mintableNft.balanceOf(TOKEN_OWNER_3))
                     .to.eventually.bignumber.equal(0);
+            });
+
+            it("should update owners' iterable token lists", async () => {
+                // TOKEN_OWNER_1
+                await expect(mintableNft.tokenOfOwnerByIndex(TOKEN_OWNER_1, 0))
+                    .to.eventually.bignumber.equal(TOKEN_ID_3);
+                await expect(mintableNft.tokenOfOwnerByIndex(TOKEN_OWNER_1, 1))
+                    .to.eventually.be.rejectedWith(INVALID_OPCODE);
+
+                // TOKEN_OWNER_2
+                await expect(mintableNft.tokenOfOwnerByIndex(TOKEN_OWNER_2, 0))
+                    .to.eventually.bignumber.equal(TOKEN_ID_2);
+                await expect(mintableNft.tokenOfOwnerByIndex(TOKEN_OWNER_2, 1))
+                    .to.eventually.bignumber.equal(TOKEN_ID_1);
+                await expect(mintableNft.tokenOfOwnerByIndex(TOKEN_OWNER_2, 2))
+                    .to.eventually.be.rejectedWith(INVALID_OPCODE);
+
+                // TOKEN_OWNER_3
+                await expect(mintableNft.tokenOfOwnerByIndex(TOKEN_OWNER_3, 0))
+                    .to.eventually.be.rejectedWith(INVALID_OPCODE);
             });
         });
     });

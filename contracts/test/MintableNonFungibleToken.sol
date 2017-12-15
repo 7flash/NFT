@@ -24,8 +24,8 @@ contract MintableNonFungibleToken is NonFungibleToken, Ownable {
         onlyOwner
         onlyNonexistentToken(_tokenId)
     {
-        tokenIdToOwner[_tokenId] = _owner;
-        ownerToNumTokensOwned[_owner] = ownerToNumTokensOwned[_owner].add(1);
+        _addTokenToOwnersList(_owner, _tokenId);
+
         numTokensTotal = numTokensTotal.add(1);
         tokenIdToMetadata[_tokenId] = _metadata;
     }

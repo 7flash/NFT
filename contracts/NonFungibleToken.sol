@@ -22,9 +22,10 @@ contract NonFungibleToken is ERC721 {
     uint public numTokensTotal;
 
     mapping(uint => address) public tokenIdToOwner;
-    mapping(address => uint) public ownerToNumTokensOwned;
     mapping(uint => address) public tokenIdToApprovedAddress;
     mapping(uint => string) public tokenIdToMetadata;
+    mapping(address => uint[]) public ownerToTokensOwned;
+    mapping(uint => uint) public tokenIdToOwnerArrayIndex;
 
     event Transfer(
         address indexed _from,
@@ -56,7 +57,7 @@ contract NonFungibleToken is ERC721 {
         constant
         returns (uint _balance)
     {
-        return ownerToNumTokensOwned[_owner];
+        return ownerToTokensOwned[_owner].length;
     }
 
     function ownerOf(uint _tokenId)
@@ -87,32 +88,25 @@ contract NonFungibleToken is ERC721 {
         require(tokenIdToApprovedAddress[_tokenId] == msg.sender);
         require(tokenIdToOwner[_tokenId] == _from);
 
-
+        _transfer(_from, _to, _tokenId);
     }
 
-    function transfer(address _to, uint256 _tokenId)
+    function transfer(address _to, uint _tokenId)
         public
         onlyExtantToken(_tokenId)
     {
         require(tokenIdToOwner[_tokenId] == msg.sender);
         require(_to != address(0));
 
-        tokenIdToOwner[_tokenId] = _to;
+        _transfer(msg.sender, _to, _tokenId);
+    }
 
-        // Update owner token balances
-        ownerToNumTokensOwned[msg.sender] =
-            ownerToNumTokensOwned[msg.sender].sub(1);
-        ownerToNumTokensOwned[_to] =
-            ownerToNumTokensOwned[_to].add(1);
-
-        Transfer(msg.sender, _to, _tokenId);
-
-        // If necessary, we clear any outstanding approvals on the
-        // non-fungible token upon transfer.
-        if (tokenIdToApprovedAddress[_tokenId] != address(0)) {
-            tokenIdToApprovedAddress[_tokenId] = address(0);
-            Approval(msg.sender, address(0), _tokenId);
-        }
+    function tokenOfOwnerByIndex(address _owner, uint _index)
+        public
+        constant
+        returns (uint _tokenId)
+    {
+        return ownerToTokensOwned[_owner][_index];
     }
 
     function implementsERC721()
@@ -121,5 +115,44 @@ contract NonFungibleToken is ERC721 {
         returns(bool _implementsERC721)
     {
         return true;
+    }
+
+    function _transfer(address _from, address _to, uint _tokenId)
+        internal
+    {
+        _clearTokenApproval(_tokenId);
+        _removeTokenFromOwnersList(_from, _tokenId);
+        _addTokenToOwnersList(_to, _tokenId);
+        Transfer(msg.sender, _to, _tokenId);
+    }
+
+    function _clearTokenApproval(uint _tokenId)
+        internal
+    {
+        tokenIdToApprovedAddress[_tokenId] = address(0);
+        Approval(tokenIdToOwner[_tokenId], 0, _tokenId);
+    }
+
+    function _addTokenToOwnersList(address _owner, uint _tokenId)
+        internal
+    {
+        ownerToTokensOwned[_owner].push(_tokenId);
+        tokenIdToOwner[_tokenId] = _owner;
+        tokenIdToOwnerArrayIndex[_tokenId] =
+            ownerToTokensOwned[_owner].length - 1;
+    }
+
+    function _removeTokenFromOwnersList(address _owner, uint _tokenId)
+        internal
+    {
+        uint length = ownerToTokensOwned[_owner].length;
+        uint index = tokenIdToOwnerArrayIndex[_tokenId];
+        uint swapToken = ownerToTokensOwned[_owner][length - 1];
+
+        ownerToTokensOwned[_owner][index] = swapToken;
+        tokenIdToOwnerArrayIndex[swapToken] = index;
+
+        delete ownerToTokensOwned[_owner][length - 1];
+        ownerToTokensOwned[_owner].length--;
     }
 }
