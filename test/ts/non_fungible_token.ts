@@ -7,7 +7,7 @@ import {
     TransactionReturnPayload,
 } from "../../types/contracts";
 import {chaiSetup} from "./utils/chai_setup.js";
-import {REVERT_ERROR} from "./utils/constants";
+import {REVERT_ERROR, INVALID_OPCODE} from "./utils/constants";
 import {LogApproval, LogTransfer} from "./utils/logs";
 
 chaiSetup.configure();
@@ -67,7 +67,7 @@ contract("Non-Fungible Token", (ACCOUNTS) => {
             it("should throw", async () => {
                 await expect(mintableNft.transfer(TOKEN_OWNER_1, TOKEN_ID_2,
                     { from: TOKEN_OWNER_1 })).to.eventually.be
-                    .rejectedWith(REVERT_ERROR);
+                    .rejectedWith(INVALID_OPCODE);
             });
         });
 
@@ -75,7 +75,7 @@ contract("Non-Fungible Token", (ACCOUNTS) => {
             it("should throw", async () => {
                 await expect(mintableNft.transfer(TOKEN_OWNER_1, NONEXISTENT_TOKEN_ID,
                     { from: TOKEN_OWNER_1 })).to.eventually.be
-                    .rejectedWith(REVERT_ERROR);
+                    .rejectedWith(INVALID_OPCODE);
             });
         });
 
@@ -105,7 +105,7 @@ contract("Non-Fungible Token", (ACCOUNTS) => {
             it("should throw", async () => {
                 await expect(mintableNft.transfer(TOKEN_OWNER_2, TOKEN_ID_1,
                     { from: TOKEN_OWNER_1 })).to.eventually.be
-                    .rejectedWith(REVERT_ERROR);
+                    .rejectedWith(INVALID_OPCODE);
             });
         });
 
@@ -113,7 +113,7 @@ contract("Non-Fungible Token", (ACCOUNTS) => {
             it("should throw", async () => {
                 await expect(mintableNft.transfer("0x0", TOKEN_ID_1,
                     { from: TOKEN_OWNER_1 })).to.eventually.be
-                    .rejectedWith(REVERT_ERROR);
+                    .rejectedWith(INVALID_OPCODE);
             });
         });
 
