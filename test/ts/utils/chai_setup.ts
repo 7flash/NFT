@@ -9,5 +9,6 @@ export const chaiSetup = {
         chai.use(ChaiBigNumber());
         chai.use(ChaiAsPromised);
         chai.use(ChaiSolidityLogs);
+        chai.should();
     },
 };

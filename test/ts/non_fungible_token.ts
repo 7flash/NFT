@@ -8,7 +8,7 @@ import {
 } from "../../types/contracts";
 import {chaiSetup} from "./utils/chai_setup.js";
 import {REVERT_ERROR} from "./utils/constants";
-import {LogTransfer} from "./utils/logs";
+import {LogApproval, LogTransfer} from "./utils/logs";
 
 chaiSetup.configure();
 const expect = chai.expect;
@@ -130,7 +130,7 @@ contract("Non-Fungible Token", (ACCOUNTS) => {
                 const logExpected =
                     LogTransfer(TOKEN_OWNER_2, TOKEN_OWNER_2, TOKEN_ID_1) as Log;
 
-                expect(logReturned).to.solidityLogs.equal(logExpected);
+                expect(logReturned).to.solidityLogs.deep.equal(logExpected);
             });
 
             it("should belong to same owner", async () => {
@@ -139,16 +139,37 @@ contract("Non-Fungible Token", (ACCOUNTS) => {
             });
         });
 
+
         describe("user transfers token with outstanding approval", async () => {
+            let res: TransactionReturnPayload;
+
             before(async () => {
                 await mintableNft.approve(TOKEN_OWNER_1, TOKEN_ID_3,
                     { from: TOKEN_OWNER_3 });
+                res = await mintableNft.transfer(TOKEN_OWNER_1, TOKEN_ID_3,
+                    { from: TOKEN_OWNER_3 });
             });
 
-            it("should emit approval clear log");
-            it("should emit transfer log");
-            it("should no longer belong to him");
-            it("should belong to new owner");
+            it("should emit approval clear log", () => {
+                const logReturned = res.logs[0] as Log;
+                const logExpected =
+                    LogApproval(TOKEN_OWNER_1, "0x0", TOKEN_ID_3) as Log;
+
+                expect(logReturned).to.solidityLogs.deep.equal(logExpected);
+            });
+
+            it("should emit transfer log", () => {
+                const logReturned = res.logs[1] as Log;
+                const logExpected =
+                    LogTransfer(TOKEN_OWNER_3, TOKEN_OWNER_1, TOKEN_ID_3) as Log;
+
+                expect(logReturned).to.solidityLogs.deep.equal(logExpected);
+            });
+
+            it("should belong to new owner", async () => {
+                await expect(mintableNft.ownerOf(TOKEN_ID_3))
+                    .to.eventually.equal(TOKEN_OWNER_1);
+            });
         });
     });
 });

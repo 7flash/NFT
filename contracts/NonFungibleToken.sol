@@ -23,6 +23,18 @@ contract NonFungibleToken is ERC721 {
     mapping(uint => address) public tokenIdToApprovedAddress;
     mapping(uint => string) public tokenIdToMetadata;
 
+    event Transfer(
+        address indexed _from,
+        address indexed _to,
+        uint256 _tokenId
+    );
+
+    event Approval(
+        address indexed _owner,
+        address indexed _approved,
+        uint256 _tokenId
+    );
+
     modifier onlyExtantToken(uint _tokenId) {
         require(tokenIdToOwner[_tokenId] != address(0));
         _;
@@ -75,11 +87,23 @@ contract NonFungibleToken is ERC721 {
 
     }
 
-    function transfer(address _to, uint _tokenId)
+    function transfer(address _to, uint256 _tokenId)
         public
         onlyExtantToken(_tokenId)
     {
         require(tokenIdToOwner[_tokenId] == msg.sender);
+        require(_to != address(0));
+
+        tokenIdToOwner[_tokenId] = _to;
+
+        Transfer(msg.sender, _to, _tokenId);
+
+        // If necessary, we clear any outstanding approvals on the
+        // non-fungible token upon transfer.
+        if (tokenIdToApprovedAddress[_tokenId] != address(0)) {
+            tokenIdToApprovedAddress[_tokenId] = address(0);
+            Approval(msg.sender, address(0), _tokenId);
+        }
     }
 
     function implementsERC721()

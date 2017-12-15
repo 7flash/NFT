@@ -18,3 +18,18 @@ export function LogTransfer(
         event: "Transfer",
     };
 }
+
+export function LogApproval(
+    owner: Address,
+    approved: Address,
+    tokenId: UInt,
+): Log {
+    return {
+        args: {
+            _owner: owner,
+            _approved: approved,
+            _tokenId: tokenId,
+        },
+        event: "Approval",
+    };
+}
