@@ -1,6 +1,7 @@
 pragma solidity 0.4.18;
 
 import "./ERC721.sol";
+import "node_modules/zeppelin-solidity/contracts/math/SafeMath.sol";
 
 
 /**
@@ -16,6 +17,8 @@ import "./ERC721.sol";
  * Implementation Author: Nadav Hollander <nadav at dharma.io>
  */
 contract NonFungibleToken is ERC721 {
+    using SafeMath for uint;
+
     uint public numTokensTotal;
 
     mapping(uint => address) public tokenIdToOwner;
@@ -95,6 +98,12 @@ contract NonFungibleToken is ERC721 {
         require(_to != address(0));
 
         tokenIdToOwner[_tokenId] = _to;
+
+        // Update owner token balances
+        ownerToNumTokensOwned[msg.sender] =
+            ownerToNumTokensOwned[msg.sender].sub(1);
+        ownerToNumTokensOwned[_to] =
+            ownerToNumTokensOwned[_to].add(1);
 
         Transfer(msg.sender, _to, _tokenId);
 

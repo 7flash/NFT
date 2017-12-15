@@ -99,6 +99,15 @@ contract("Non-Fungible Token", (ACCOUNTS) => {
                 await expect(mintableNft.ownerOf(TOKEN_ID_1))
                     .to.eventually.equal(TOKEN_OWNER_2);
             });
+
+            it("should update owners' token balances correctly", async () => {
+                await expect(mintableNft.balanceOf(TOKEN_OWNER_1))
+                    .to.eventually.bignumber.equal(0);
+                await expect(mintableNft.balanceOf(TOKEN_OWNER_2))
+                    .to.eventually.bignumber.equal(2);
+                await expect(mintableNft.balanceOf(TOKEN_OWNER_3))
+                    .to.eventually.bignumber.equal(1);
+            });
         });
 
         describe("user transfers token he no longer owns", async () => {
@@ -137,6 +146,15 @@ contract("Non-Fungible Token", (ACCOUNTS) => {
                 await expect(mintableNft.ownerOf(TOKEN_ID_1))
                     .to.eventually.equal(TOKEN_OWNER_2);
             });
+
+            it("should maintain owners' token balances correctly", async () => {
+                await expect(mintableNft.balanceOf(TOKEN_OWNER_1))
+                    .to.eventually.bignumber.equal(0);
+                await expect(mintableNft.balanceOf(TOKEN_OWNER_2))
+                    .to.eventually.bignumber.equal(2);
+                await expect(mintableNft.balanceOf(TOKEN_OWNER_3))
+                    .to.eventually.bignumber.equal(1);
+            });
         });
 
 
@@ -169,6 +187,15 @@ contract("Non-Fungible Token", (ACCOUNTS) => {
             it("should belong to new owner", async () => {
                 await expect(mintableNft.ownerOf(TOKEN_ID_3))
                     .to.eventually.equal(TOKEN_OWNER_1);
+            });
+
+            it("should update owners' token balances correctly", async () => {
+                await expect(mintableNft.balanceOf(TOKEN_OWNER_1))
+                    .to.eventually.bignumber.equal(1);
+                await expect(mintableNft.balanceOf(TOKEN_OWNER_2))
+                    .to.eventually.bignumber.equal(2);
+                await expect(mintableNft.balanceOf(TOKEN_OWNER_3))
+                    .to.eventually.bignumber.equal(0);
             });
         });
     });
