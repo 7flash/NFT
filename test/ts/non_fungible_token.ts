@@ -34,9 +34,15 @@ contract("Non-Fungible Token", (ACCOUNTS) => {
     const METADATA_STRING_2 = "https://www.example.com";
     const METADATA_STRING_3 = "unstructured arbitrary metadata string";
 
+    const init = async () => {
+        mintableNft = await mintableNftContract.new();
+        await mintableNft.mint(TOKEN_OWNER_1, TOKEN_ID_1, METADATA_STRING_1);
+        await mintableNft.mint(TOKEN_OWNER_2, TOKEN_ID_2, METADATA_STRING_2);
+        await mintableNft.mint(TOKEN_OWNER_3, TOKEN_ID_3, METADATA_STRING_3);
+    }
+
     before(async () => {
         nft = await nftContract.deployed();
-        mintableNft = await mintableNftContract.deployed();
     });
 
     describe("#flags", () => {
@@ -46,6 +52,10 @@ contract("Non-Fungible Token", (ACCOUNTS) => {
     });
 
     describe("#totalSupply()", async () => {
+        before(async() => {
+            mintableNft = await mintableNftContract.new();
+        });
+
         it("should return 0 for initial supply", async () => {
             await expect(mintableNft.totalSupply()).to.eventually.bignumber.equal(0);
         });
@@ -63,6 +73,8 @@ contract("Non-Fungible Token", (ACCOUNTS) => {
     });
 
     describe('#balanceOf()', async () => {
+        before(init);
+
         it("should return 1 for each owner's balance", async () => {
             await expect(mintableNft.balanceOf(TOKEN_OWNER_1))
                 .to.eventually.bignumber.equal(1);
@@ -74,6 +86,8 @@ contract("Non-Fungible Token", (ACCOUNTS) => {
     });
 
     describe('#tokenOfOwnerByIndex()', async () => {
+        before(init);
+
         it("should return current token at index 0 for each user", async () => {
             await expect(mintableNft.tokenOfOwnerByIndex(TOKEN_OWNER_1, 0))
                 .to.eventually.bignumber.equal(TOKEN_ID_1);
@@ -94,6 +108,8 @@ contract("Non-Fungible Token", (ACCOUNTS) => {
     });
 
     describe("#transfer()", async () => {
+        before(init);
+
         describe("user transfers token he doesn't own", async () => {
             it("should throw", async () => {
                 await expect(mintableNft.transfer(TOKEN_OWNER_1, TOKEN_ID_2,
