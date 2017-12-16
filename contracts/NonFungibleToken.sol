@@ -1,6 +1,6 @@
 pragma solidity 0.4.18;
 
-import "./ERC721.sol";
+import "./DetailedERC721.sol";
 import "node_modules/zeppelin-solidity/contracts/math/SafeMath.sol";
 
 
@@ -16,8 +16,11 @@ import "node_modules/zeppelin-solidity/contracts/math/SafeMath.sol";
  * Standard Author: dete
  * Implementation Author: Nadav Hollander <nadav at dharma.io>
  */
-contract NonFungibleToken is ERC721 {
+contract NonFungibleToken is DetailedERC721 {
     using SafeMath for uint;
+
+    string public name;
+    string public symbol;
 
     uint public numTokensTotal;
 
@@ -44,6 +47,22 @@ contract NonFungibleToken is ERC721 {
         _;
     }
 
+    function name()
+        public
+        constant
+        returns (string _name)
+    {
+        return name;
+    }
+
+    function symbol()
+        public
+        constant
+        returns (string _symbol)
+    {
+        return symbol;
+    }
+
     function totalSupply()
         public
         constant
@@ -68,11 +87,20 @@ contract NonFungibleToken is ERC721 {
         return tokenIdToOwner[_tokenId];
     }
 
+    function tokenMetadata(uint _tokenId)
+        public
+        constant
+        returns (string _infoUrl)
+    {
+        return tokenIdToMetadata[_tokenId];
+    }
+
     function approve(address _to, uint _tokenId)
         public
         onlyExtantToken(_tokenId)
     {
         require(msg.sender == ownerOf(_tokenId));
+        require(msg.sender != _to);
 
         if (tokenIdToApprovedAddress[_tokenId] != address(0) ||
                 _to != address(0)) {
@@ -96,7 +124,6 @@ contract NonFungibleToken is ERC721 {
         onlyExtantToken(_tokenId)
     {
         require(tokenIdToOwner[_tokenId] == msg.sender);
-        require(_to != address(0));
 
         _transfer(msg.sender, _to, _tokenId);
     }
@@ -109,17 +136,35 @@ contract NonFungibleToken is ERC721 {
         return ownerToTokensOwned[_owner][_index];
     }
 
+    function getOwnerTokens(address _owner)
+        public
+        constant
+        returns (uint[] _tokenIds)
+    {
+        return ownerToTokensOwned[_owner];
+    }
+
     function implementsERC721()
         public
         constant
-        returns(bool _implementsERC721)
+        returns (bool _implementsERC721)
     {
         return true;
+    }
+
+    function getApproved(uint _tokenId)
+        public
+        constant
+        returns (address _approved)
+    {
+        return tokenIdToApprovedAddress[_tokenId];
     }
 
     function _transfer(address _from, address _to, uint _tokenId)
         internal
     {
+        require(_to != address(0));
+
         _clearTokenApproval(_tokenId);
         _removeTokenFromOwnersList(_from, _tokenId);
         _addTokenToOwnersList(_to, _tokenId);

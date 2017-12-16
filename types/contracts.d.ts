@@ -84,6 +84,7 @@ export interface NFTContractInstance extends ContractInstance {
     totalSupply(): Promise<UInt>;
     balanceOf(owner: Address): Promise<UInt>;
     ownerOf(tokenId: UInt): Promise<Address>;
+    getApproved(tokenId: UInt): Promise<Address>;
     approve(to: Address, tokenId: UInt, options?: TransactionOptions):
         Promise<TransactionReturnPayload>;
     transfer(to: Address, tokenId: UInt, options?: TransactionOptions):
@@ -91,6 +92,7 @@ export interface NFTContractInstance extends ContractInstance {
     transferFrom(from: Address, to: Address, tokenId: UInt, options?: TransactionOptions):
         Promise<TransactionReturnPayload>;
     tokenOfOwnerByIndex(owner: Address, index: UInt): Promise<UInt>;
+    getOwnerTokens(owner: Address): Promise<UInt[]>;
     tokenMetadata(tokenId: UInt): Promise<string>;
     implementsERC721(): Promise<boolean>;
 }
