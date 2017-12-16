@@ -34,7 +34,7 @@ contract("Non-Fungible Token", (ACCOUNTS) => {
     const METADATA_STRING_2 = "https://www.example.com";
     const METADATA_STRING_3 = "unstructured arbitrary metadata string";
 
-    const init = async () => {
+    const resetAndInitNft = async () => {
         mintableNft = await mintableNftContract.new();
         await mintableNft.mint(TOKEN_OWNER_1, TOKEN_ID_1, METADATA_STRING_1);
         await mintableNft.mint(TOKEN_OWNER_2, TOKEN_ID_2, METADATA_STRING_2);
@@ -73,7 +73,7 @@ contract("Non-Fungible Token", (ACCOUNTS) => {
     });
 
     describe('#balanceOf()', async () => {
-        before(init);
+        before(resetAndInitNft);
 
         it("should return 1 for each owner's balance", async () => {
             await expect(mintableNft.balanceOf(TOKEN_OWNER_1))
@@ -86,7 +86,7 @@ contract("Non-Fungible Token", (ACCOUNTS) => {
     });
 
     describe('#tokenOfOwnerByIndex()', async () => {
-        before(init);
+        before(resetAndInitNft);
 
         it("should return current token at index 0 for each user", async () => {
             await expect(mintableNft.tokenOfOwnerByIndex(TOKEN_OWNER_1, 0))
@@ -108,7 +108,7 @@ contract("Non-Fungible Token", (ACCOUNTS) => {
     });
 
     describe("#transfer()", async () => {
-        before(init);
+        before(resetAndInitNft);
 
         describe("user transfers token he doesn't own", async () => {
             it("should throw", async () => {
@@ -253,7 +253,6 @@ contract("Non-Fungible Token", (ACCOUNTS) => {
                     { from: TOKEN_OWNER_3 });
                 res = await mintableNft.transfer(TOKEN_OWNER_1, TOKEN_ID_3,
                     { from: TOKEN_OWNER_3 });
-                console.log(res.receipt.gasUsed);
             });
 
             it("should emit approval clear log", () => {
@@ -308,19 +307,20 @@ contract("Non-Fungible Token", (ACCOUNTS) => {
         });
     });
 
-    describe("#approve()", async () => {
-        describe("user approves transfer for token he doesn't own", async () => {
-
-        });
-        describe("user approves transfer for token that doesn't exist");
-        describe("user approves himself for transferring a token he owns");
-        describe("user owns token", async () => {
-            describe("user clears unset approval");
-            describe("user sets new approval");
-            describe("user reaffirms approval");
-            describe("user clears set approval");
-        });
-    });
+    // TODO: Fill in test skeleton
+    // describe("#approve()", async () => {
+    //     before(resetAndInitNft);
+    //
+    //     describe("user approves transfer for token he doesn't own");
+    //     describe("user approves transfer for token that doesn't exist");
+    //     describe("user approves himself for transferring a token he owns");
+    //     describe("user owns token", async () => {
+    //         describe("user clears unset approval");
+    //         describe("user sets new approval");
+    //         describe("user reaffirms approval");
+    //         describe("user clears set approval");
+    //     });
+    // });
 
     describe("#transferFrom()", async () => {
         describe("user transfers token from owner w/o permission...", async () => {
