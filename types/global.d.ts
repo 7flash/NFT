@@ -8,7 +8,7 @@ declare global {
   function contract(name: string, test: ContractTest): void;
   function before(executionBlock: ExecutionBlock): void;
   function beforeEach(executionBlock: ExecutionBlock): void;
-  function describe(name: string, executionBlock: ExecutionBlock): void;
+  function describe(name: string, executionBlock?: ExecutionBlock): void;
   function it(name: string, executionBlock?: ExecutionBlock): void;
 
   var artifacts: Artifacts;

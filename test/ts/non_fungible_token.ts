@@ -237,6 +237,7 @@ contract("Non-Fungible Token", (ACCOUNTS) => {
                     { from: TOKEN_OWNER_3 });
                 res = await mintableNft.transfer(TOKEN_OWNER_1, TOKEN_ID_3,
                     { from: TOKEN_OWNER_3 });
+                console.log(res.receipt.gasUsed);
             });
 
             it("should emit approval clear log", () => {
@@ -290,4 +291,40 @@ contract("Non-Fungible Token", (ACCOUNTS) => {
             });
         });
     });
+
+    describe("#approve()", async () => {
+        describe("user approves transfer for token he doesn't own", async () => {
+
+        });
+        describe("user approves transfer for token that doesn't exist");
+        describe("user approves himself for transferring a token he owns");
+        describe("user owns token", async () => {
+            describe("user clears unset approval");
+            describe("user sets new approval");
+            describe("user reaffirms approval");
+            describe("user clears set approval");
+        });
+    });
+
+    describe("#transferFrom()", async () => {
+        describe("user transfers token from owner w/o permission...", async () => {
+            it("should throw", async () => {
+                await expect(mintableNft.transferFrom(TOKEN_OWNER_2, TOKEN_OWNER_3,
+                    TOKEN_ID_1, { from: TOKEN_OWNER_3 }))
+                    .to.eventually.be.rejectedWith(REVERT_ERROR);
+            });
+        });
+
+        describe("user transfers non-existent token", async () => {
+            it("should throw", async () => {
+                await expect(mintableNft.transferFrom(TOKEN_OWNER_2, TOKEN_OWNER_3,
+                    NONEXISTENT_TOKEN_ID, { from: TOKEN_OWNER_3 }))
+                    .to.eventually.be.rejectedWith(REVERT_ERROR);
+            });
+        });
+
+        describe("user transfers token from owner w/ permission...", async () => {
+
+        });
+    })
 });
