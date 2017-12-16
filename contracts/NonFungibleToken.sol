@@ -97,7 +97,6 @@ contract NonFungibleToken is ERC721 {
         onlyExtantToken(_tokenId)
     {
         require(tokenIdToOwner[_tokenId] == msg.sender);
-        require(_to != address(0));
 
         _transfer(msg.sender, _to, _tokenId);
     }
@@ -129,6 +128,8 @@ contract NonFungibleToken is ERC721 {
     function _transfer(address _from, address _to, uint _tokenId)
         internal
     {
+        require(_to != address(0));
+        
         _clearTokenApproval(_tokenId);
         _removeTokenFromOwnersList(_from, _tokenId);
         _addTokenToOwnersList(_to, _tokenId);

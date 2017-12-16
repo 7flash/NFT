@@ -445,7 +445,9 @@ contract("Non-Fungible Token", (ACCOUNTS) => {
     });
 
     describe("#transferFrom()", () => {
-        describe("user transfers token from owner w/o permission...", () => {
+        before(resetAndInitNft);
+
+        describe("user transfers token from owner w/o approval...", () => {
             it("should throw", async () => {
                 await expect(mintableNft.transferFrom(TOKEN_OWNER_2, TOKEN_OWNER_3,
                     TOKEN_ID_1, { from: TOKEN_OWNER_3 }))
@@ -458,6 +460,88 @@ contract("Non-Fungible Token", (ACCOUNTS) => {
                 await expect(mintableNft.transferFrom(TOKEN_OWNER_2, TOKEN_OWNER_3,
                     NONEXISTENT_TOKEN_ID, { from: TOKEN_OWNER_3 }))
                     .to.eventually.be.rejectedWith(REVERT_ERROR);
+            });
+        });
+
+        describe("user transfers token from owner w/ approval...", () => {
+            before(async () => {
+                await mintableNft.approve(TOKEN_OWNER_2, TOKEN_ID_1,
+                    { from: TOKEN_OWNER_1 });
+            });
+
+            describe("...from himself to himself", () => {
+                it("should throw", async () => {
+                    await expect(mintableNft.transferFrom(TOKEN_OWNER_2, TOKEN_OWNER_2,
+                        TOKEN_ID_2, { from: TOKEN_OWNER_2 }))
+                        .to.eventually.be.rejectedWith(REVERT_ERROR);
+                });
+            });
+
+            describe("...to null address", () => {
+                it("should throw", async () => {
+                    await expect(mintableNft.transferFrom(TOKEN_OWNER_1, NULL_ADDRESS,
+                        TOKEN_ID_1, { from: TOKEN_OWNER_2 }))
+                        .to.eventually.be.rejectedWith(REVERT_ERROR);
+                });
+            });
+
+            describe("...from other owner to himself", () => {
+                let res: TransactionReturnPayload;
+
+                before(async () => {
+                    res = await mintableNft.transferFrom(TOKEN_OWNER_1, TOKEN_OWNER_3,
+                        TOKEN_ID_1, { from: TOKEN_OWNER_2 });
+                });
+
+                it("should emit approval clear log", () => {
+                    const logReturned = res.logs[0] as Log;
+                    const logExpected =
+                        LogApproval(TOKEN_OWNER_1, NULL_ADDRESS, TOKEN_ID_1) as Log;
+
+                    expect(logReturned).to.solidityLogs.deep.equal(logExpected);
+                });
+
+                it("should emit transfer log", () => {
+                    const logReturned = res.logs[1] as Log;
+                    const logExpected =
+                        LogTransfer(TOKEN_OWNER_1, TOKEN_OWNER_3, TOKEN_ID_1) as Log;
+
+                    expect(logReturned).to.solidityLogs.deep.equal(logExpected);
+                });
+
+                it("should belong to new owner", async () => {
+                    await expect(mintableNft.ownerOf(TOKEN_ID_1))
+                        .to.eventually.equal(TOKEN_OWNER_3);
+                });
+
+                it("should update owners' token balances correctly", async () => {
+                    await expect(mintableNft.balanceOf(TOKEN_OWNER_1))
+                        .to.eventually.bignumber.equal(0);
+                    await expect(mintableNft.balanceOf(TOKEN_OWNER_2))
+                        .to.eventually.bignumber.equal(1);
+                    await expect(mintableNft.balanceOf(TOKEN_OWNER_3))
+                        .to.eventually.bignumber.equal(2);
+                });
+
+                it("should update owners' iterable token lists", async () => {
+                    // TOKEN_OWNER_1
+                    await expect(mintableNft.tokenOfOwnerByIndex(TOKEN_OWNER_1, 0))
+                        .to.eventually.be.rejectedWith(INVALID_OPCODE);
+
+                    // TOKEN_OWNER_2
+                    await expect(mintableNft.tokenOfOwnerByIndex(TOKEN_OWNER_2, 0))
+                        .to.eventually.bignumber.equal(TOKEN_ID_2);
+                    await expect(mintableNft.tokenOfOwnerByIndex(TOKEN_OWNER_2, 1))
+                        .to.eventually.be.rejectedWith(INVALID_OPCODE);
+
+                    // TOKEN_OWNER_3
+                    await expect(mintableNft.tokenOfOwnerByIndex(TOKEN_OWNER_3, 0))
+                        .to.eventually.bignumber.equal(TOKEN_ID_3);
+                    await expect(mintableNft.tokenOfOwnerByIndex(TOKEN_OWNER_3, 1))
+                        .to.eventually.bignumber.equal(TOKEN_ID_1);
+                    await expect(mintableNft.tokenOfOwnerByIndex(TOKEN_OWNER_3, 2))
+                        .to.eventually.be.rejectedWith(INVALID_OPCODE);
+                });
             });
         });
     })
