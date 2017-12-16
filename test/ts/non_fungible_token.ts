@@ -29,6 +29,7 @@ contract("Non-Fungible Token", (ACCOUNTS) => {
     const TOKEN_ID_2 = (new BigNumber.BigNumber(2)).pow(64); // 2 ** 64
     const TOKEN_ID_3 = (new BigNumber.BigNumber(2)).pow(128); // 2 ** 128
     const NONEXISTENT_TOKEN_ID = 13;
+    const NULL_ADDRESS = "0x0000000000000000000000000000000000000000";
 
     const METADATA_STRING_1 = "ipfs://QmZU8bKEG8fhcQwKoLHfjtJoKBzvUT5LFR3f8dEz86WdVe";
     const METADATA_STRING_2 = "https://www.example.com";
@@ -72,7 +73,7 @@ contract("Non-Fungible Token", (ACCOUNTS) => {
         });
     });
 
-    describe('#balanceOf()', async () => {
+    describe('#balanceOf()', () => {
         before(resetAndInitNft);
 
         it("should return 1 for each owner's balance", async () => {
@@ -85,7 +86,7 @@ contract("Non-Fungible Token", (ACCOUNTS) => {
         });
     });
 
-    describe('#tokenOfOwnerByIndex()', async () => {
+    describe('#tokenOfOwnerByIndex()', () => {
         before(resetAndInitNft);
 
         it("should return current token at index 0 for each user", async () => {
@@ -107,7 +108,7 @@ contract("Non-Fungible Token", (ACCOUNTS) => {
         });
     });
 
-    describe("#transfer()", async () => {
+    describe("#transfer()", () => {
         before(resetAndInitNft);
 
         describe("user transfers token he doesn't own", async () => {
@@ -177,7 +178,7 @@ contract("Non-Fungible Token", (ACCOUNTS) => {
             });
         });
 
-        describe("user transfers token he no longer owns", async () => {
+        describe("user transfers token he no longer owns", () => {
             it("should throw", async () => {
                 await expect(mintableNft.transfer(TOKEN_OWNER_2, TOKEN_ID_1,
                     { from: TOKEN_OWNER_1 })).to.eventually.be
@@ -185,15 +186,15 @@ contract("Non-Fungible Token", (ACCOUNTS) => {
             });
         });
 
-        describe("user transfers token he owns to 0", async () => {
+        describe("user transfers token he owns to 0", () => {
             it("should throw", async () => {
-                await expect(mintableNft.transfer("0x0", TOKEN_ID_1,
+                await expect(mintableNft.transfer(NULL_ADDRESS, TOKEN_ID_1,
                     { from: TOKEN_OWNER_1 })).to.eventually.be
                     .rejectedWith(REVERT_ERROR);
             });
         });
 
-        describe("user transfers token he owns to himself", async () => {
+        describe("user transfers token he owns to himself", () => {
             let res: TransactionReturnPayload;
 
             before(async () => {
@@ -245,7 +246,7 @@ contract("Non-Fungible Token", (ACCOUNTS) => {
         });
 
 
-        describe("user transfers token with outstanding approval", async () => {
+        describe("user transfers token with outstanding approval", () => {
             let res: TransactionReturnPayload;
 
             before(async () => {
@@ -258,7 +259,7 @@ contract("Non-Fungible Token", (ACCOUNTS) => {
             it("should emit approval clear log", () => {
                 const logReturned = res.logs[0] as Log;
                 const logExpected =
-                    LogApproval(TOKEN_OWNER_1, "0x0", TOKEN_ID_3) as Log;
+                    LogApproval(TOKEN_OWNER_1, NULL_ADDRESS, TOKEN_ID_3) as Log;
 
                 expect(logReturned).to.solidityLogs.deep.equal(logExpected);
             });
@@ -307,23 +308,144 @@ contract("Non-Fungible Token", (ACCOUNTS) => {
         });
     });
 
-    // TODO: Fill in test skeleton
-    // describe("#approve()", async () => {
-    //     before(resetAndInitNft);
-    //
-    //     describe("user approves transfer for token he doesn't own");
-    //     describe("user approves transfer for token that doesn't exist");
-    //     describe("user approves himself for transferring a token he owns");
-    //     describe("user owns token", async () => {
-    //         describe("user clears unset approval");
-    //         describe("user sets new approval");
-    //         describe("user reaffirms approval");
-    //         describe("user clears set approval");
-    //     });
-    // });
+    describe("#approve()", () => {
+        before(resetAndInitNft);
 
-    describe("#transferFrom()", async () => {
-        describe("user transfers token from owner w/o permission...", async () => {
+        describe("user approves transfer for token he doesn't own", () => {
+            it("should throw", async () => {
+                expect(mintableNft.approve(TOKEN_OWNER_2, TOKEN_ID_1,
+                    { from: TOKEN_OWNER_2 }))
+                    .to.eventually.be.rejectedWith(REVERT_ERROR);
+            });
+        });
+
+        describe("user approves transfer for nonexistent token", () => {
+            it("should throw", async () => {
+                expect(mintableNft.approve(TOKEN_OWNER_2, NONEXISTENT_TOKEN_ID,
+                    { from: TOKEN_OWNER_2 }))
+                    .to.eventually.be.rejectedWith(REVERT_ERROR);
+            });
+        });
+
+        describe("user approves himself for transferring token he owns", () => {
+            it("should throw", async () => {
+                expect(mintableNft.approve(TOKEN_OWNER_1, TOKEN_ID_1,
+                    { from: TOKEN_OWNER_1 }))
+                    .to.eventually.be.rejectedWith(REVERT_ERROR);
+            });
+        });
+
+        describe("user owns token", () => {
+            describe("user clears unset approval", () => {
+                let res: TransactionReturnPayload;
+
+                before(async () => {
+                    res = await mintableNft.approve(NULL_ADDRESS, TOKEN_ID_1,
+                        { from: TOKEN_OWNER_1 });
+                });
+
+                it("should NOT emit approval event", async () => {
+                    expect(res.logs.length).to.equal(0);
+                });
+
+                it("should maintain cleared approval", async () => {
+                    await expect(mintableNft.getApproved(TOKEN_ID_1))
+                        .to.eventually.equal(NULL_ADDRESS);
+                });
+            });
+
+            describe("user sets new approval", () => {
+                let res: TransactionReturnPayload;
+
+                before(async () => {
+                    res = await mintableNft.approve(TOKEN_OWNER_2, TOKEN_ID_1,
+                        { from: TOKEN_OWNER_1 });
+                });
+
+                it("should return newly approved user as approved", async () => {
+                    await expect(mintableNft.getApproved(TOKEN_ID_1))
+                        .to.eventually.equal(TOKEN_OWNER_2);
+                });
+
+                it("should emit approval log", () => {
+                    const logReturned = res.logs[0] as Log;
+                    const logExpected =
+                        LogApproval(TOKEN_OWNER_1, TOKEN_OWNER_2, TOKEN_ID_1) as Log;
+
+                    expect(logReturned).to.solidityLogs.deep.equal(logExpected);
+                })
+            });
+
+            describe("user changes token approval", () => {
+                let res: TransactionReturnPayload;
+
+                before(async () => {
+                    res = await mintableNft.approve(TOKEN_OWNER_3, TOKEN_ID_1,
+                        { from: TOKEN_OWNER_1 });
+                });
+
+                it("should return newly approved user as approved", async () => {
+                    await expect(mintableNft.getApproved(TOKEN_ID_1))
+                        .to.eventually.equal(TOKEN_OWNER_3);
+                });
+
+                it("should emit approval log", () => {
+                    const logReturned = res.logs[0] as Log;
+                    const logExpected =
+                        LogApproval(TOKEN_OWNER_1, TOKEN_OWNER_3, TOKEN_ID_1) as Log;
+
+                    expect(logReturned).to.solidityLogs.deep.equal(logExpected);
+                })
+            });
+
+            describe("user reaffirms approval", () => {
+                let res: TransactionReturnPayload;
+
+                before(async () => {
+                    res = await mintableNft.approve(TOKEN_OWNER_3, TOKEN_ID_1,
+                        { from: TOKEN_OWNER_1 });
+                });
+
+                it("should return same approved user as approved", async () => {
+                    await expect(mintableNft.getApproved(TOKEN_ID_1))
+                        .to.eventually.equal(TOKEN_OWNER_3);
+                });
+
+                it("should emit approval log", () => {
+                    const logReturned = res.logs[0] as Log;
+                    const logExpected =
+                        LogApproval(TOKEN_OWNER_1, TOKEN_OWNER_3, TOKEN_ID_1) as Log;
+
+                    expect(logReturned).to.solidityLogs.deep.equal(logExpected);
+                })
+            });
+
+            describe("user clears set approval", () => {
+                let res: TransactionReturnPayload;
+
+                before(async () => {
+                    res = await mintableNft.approve(NULL_ADDRESS, TOKEN_ID_1,
+                        { from: TOKEN_OWNER_1 });
+                });
+
+                it("should return newly approved user as approved", async () => {
+                    await expect(mintableNft.getApproved(TOKEN_ID_1))
+                        .to.eventually.equal(NULL_ADDRESS);
+                });
+
+                it("should emit approval log", () => {
+                    const logReturned = res.logs[0] as Log;
+                    const logExpected =
+                        LogApproval(TOKEN_OWNER_1, NULL_ADDRESS, TOKEN_ID_1) as Log;
+
+                    expect(logReturned).to.solidityLogs.deep.equal(logExpected);
+                })
+            });
+        });
+    });
+
+    describe("#transferFrom()", () => {
+        describe("user transfers token from owner w/o permission...", () => {
             it("should throw", async () => {
                 await expect(mintableNft.transferFrom(TOKEN_OWNER_2, TOKEN_OWNER_3,
                     TOKEN_ID_1, { from: TOKEN_OWNER_3 }))
@@ -331,16 +453,12 @@ contract("Non-Fungible Token", (ACCOUNTS) => {
             });
         });
 
-        describe("user transfers non-existent token", async () => {
+        describe("user transfers non-existent token", () => {
             it("should throw", async () => {
                 await expect(mintableNft.transferFrom(TOKEN_OWNER_2, TOKEN_OWNER_3,
                     NONEXISTENT_TOKEN_ID, { from: TOKEN_OWNER_3 }))
                     .to.eventually.be.rejectedWith(REVERT_ERROR);
             });
-        });
-
-        describe("user transfers token from owner w/ permission...", async () => {
-
         });
     })
 });

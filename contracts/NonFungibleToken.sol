@@ -73,6 +73,7 @@ contract NonFungibleToken is ERC721 {
         onlyExtantToken(_tokenId)
     {
         require(msg.sender == ownerOf(_tokenId));
+        require(msg.sender != _to);
 
         if (tokenIdToApprovedAddress[_tokenId] != address(0) ||
                 _to != address(0)) {
@@ -112,9 +113,17 @@ contract NonFungibleToken is ERC721 {
     function implementsERC721()
         public
         constant
-        returns(bool _implementsERC721)
+        returns (bool _implementsERC721)
     {
         return true;
+    }
+
+    function getApproved(uint _tokenId)
+        public
+        constant
+        returns (address _approved)
+    {
+        return tokenIdToApprovedAddress[_tokenId];
     }
 
     function _transfer(address _from, address _to, uint _tokenId)
