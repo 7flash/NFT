@@ -12,5 +12,6 @@ import "./ERC721.sol";
 contract DetailedERC721 is ERC721 {
     function name() public constant returns (string _name);
     function symbol() public constant returns (string _symbol);
-    function tokenOfOwnerByIndex(address _owner, uint256 _index) public constant returns (uint _tokenId);
+    function tokenMetadata(uint _tokenId) public constant returns (string _infoUrl);
+    function tokenOfOwnerByIndex(address _owner, uint _index) public constant returns (uint _tokenId);
 }

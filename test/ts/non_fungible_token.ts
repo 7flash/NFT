@@ -80,7 +80,7 @@ contract("Non-Fungible Token", (ACCOUNTS) => {
         });
     });
 
-    describe('#balanceOf()', () => {
+    describe('#balanceOf()', async () => {
         before(resetAndInitNft);
 
         it("should return 1 for each owner's balance", async () => {
@@ -93,7 +93,7 @@ contract("Non-Fungible Token", (ACCOUNTS) => {
         });
     });
 
-    describe('#tokenOfOwnerByIndex()', () => {
+    describe('#tokenOfOwnerByIndex()', async () => {
         before(resetAndInitNft);
 
         it("should return current token at index 0 for each user", async () => {
@@ -115,7 +115,20 @@ contract("Non-Fungible Token", (ACCOUNTS) => {
         });
     });
 
-    describe("#transfer()", () => {
+    describe("#tokenMetadata()", async () => {
+        before(resetAndInitNft);
+
+        it("should return correct metadata for each token", async () => {
+            await expect(mintableNft.tokenMetadata(TOKEN_ID_1))
+                .to.eventually.equal(METADATA_STRING_1);
+            await expect(mintableNft.tokenMetadata(TOKEN_ID_2))
+                .to.eventually.equal(METADATA_STRING_2);
+            await expect(mintableNft.tokenMetadata(TOKEN_ID_3))
+                .to.eventually.equal(METADATA_STRING_3);
+        });
+    });
+
+    describe("#transfer()", async () => {
         before(resetAndInitNft);
 
         describe("user transfers token he doesn't own", async () => {
@@ -551,5 +564,7 @@ contract("Non-Fungible Token", (ACCOUNTS) => {
                 });
             });
         });
-    })
+    });
+
+    // TODO: Add tests for getOwnerTokens
 });

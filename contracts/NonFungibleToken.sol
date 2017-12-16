@@ -87,6 +87,14 @@ contract NonFungibleToken is DetailedERC721 {
         return tokenIdToOwner[_tokenId];
     }
 
+    function tokenMetadata(uint _tokenId)
+        public
+        constant
+        returns (string _infoUrl)
+    {
+        return tokenIdToMetadata[_tokenId];
+    }
+
     function approve(address _to, uint _tokenId)
         public
         onlyExtantToken(_tokenId)
@@ -126,6 +134,14 @@ contract NonFungibleToken is DetailedERC721 {
         returns (uint _tokenId)
     {
         return ownerToTokensOwned[_owner][_index];
+    }
+
+    function getOwnerTokens(address _owner)
+        public
+        constant
+        returns (uint[] _tokenIds)
+    {
+        return ownerToTokensOwned[_owner];
     }
 
     function implementsERC721()
