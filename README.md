@@ -27,6 +27,10 @@ Start `testrpc`:
 ```
 npm run testrpc
 ```
+Run `truffle` migrations:
+```
+npm run migrate
+```
 Run `truffle` tests:
 ```
 npm test
