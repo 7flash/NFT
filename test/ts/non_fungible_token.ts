@@ -3,7 +3,6 @@ import * as chai from "chai";
 import {
     Log,
     MintableNFTContractInstance,
-    NFTContractInstance,
     TransactionReturnPayload,
 } from "../../types/contracts";
 import {chaiSetup} from "./utils/chai_setup.js";
@@ -17,8 +16,10 @@ const nftContract = artifacts.require("NonFungibleToken");
 const mintableNftContract = artifacts.require("MintableNonFungibleToken");
 
 contract("Non-Fungible Token", (ACCOUNTS) => {
-    let nft: NFTContractInstance;
     let mintableNft: MintableNFTContractInstance;
+
+    const NFT_NAME = "Example NFT";
+    const NFT_SYMBOL = "ENT";
 
     const CONTRACT_OWNER = ACCOUNTS[0];
     const TOKEN_OWNER_1 = ACCOUNTS[1];
@@ -36,27 +37,33 @@ contract("Non-Fungible Token", (ACCOUNTS) => {
     const METADATA_STRING_3 = "unstructured arbitrary metadata string";
 
     const resetAndInitNft = async () => {
-        mintableNft = await mintableNftContract.new();
+        mintableNft = await mintableNftContract.new(NFT_NAME, NFT_SYMBOL);
         await mintableNft.mint(TOKEN_OWNER_1, TOKEN_ID_1, METADATA_STRING_1);
         await mintableNft.mint(TOKEN_OWNER_2, TOKEN_ID_2, METADATA_STRING_2);
         await mintableNft.mint(TOKEN_OWNER_3, TOKEN_ID_3, METADATA_STRING_3);
     }
 
     before(async () => {
-        nft = await nftContract.deployed();
+        mintableNft = await mintableNftContract.new(NFT_NAME, NFT_SYMBOL);
     });
 
-    describe("#flags", () => {
+    describe("Flags", () => {
         it("should expose implementsERC721 method", async () => {
-            await expect(nft.implementsERC721()).to.eventually.equal(true);
+            await expect(mintableNft.implementsERC721()).to.eventually.equal(true);
+        });
+    });
+
+    describe("General NFT Metadata", () => {
+        it("should expose name variable", async () => {
+            await expect(mintableNft.name()).to.eventually.equal(NFT_NAME);
+        });
+
+        it("should expose symbol variable", async () => {
+            await expect(mintableNft.symbol()).to.eventually.equal(NFT_SYMBOL);
         });
     });
 
     describe("#totalSupply()", async () => {
-        before(async() => {
-            mintableNft = await mintableNftContract.new();
-        });
-
         it("should return 0 for initial supply", async () => {
             await expect(mintableNft.totalSupply()).to.eventually.bignumber.equal(0);
         });

@@ -1,6 +1,6 @@
 pragma solidity 0.4.18;
 
-import "./ERC721.sol";
+import "./DetailedERC721.sol";
 import "node_modules/zeppelin-solidity/contracts/math/SafeMath.sol";
 
 
@@ -16,8 +16,11 @@ import "node_modules/zeppelin-solidity/contracts/math/SafeMath.sol";
  * Standard Author: dete
  * Implementation Author: Nadav Hollander <nadav at dharma.io>
  */
-contract NonFungibleToken is ERC721 {
+contract NonFungibleToken is DetailedERC721 {
     using SafeMath for uint;
+
+    string public name;
+    string public symbol;
 
     uint public numTokensTotal;
 
@@ -42,6 +45,22 @@ contract NonFungibleToken is ERC721 {
     modifier onlyExtantToken(uint _tokenId) {
         require(tokenIdToOwner[_tokenId] != address(0));
         _;
+    }
+
+    function name()
+        public
+        constant
+        returns (string _name)
+    {
+        return name;
+    }
+
+    function symbol()
+        public
+        constant
+        returns (string _symbol)
+    {
+        return symbol;
     }
 
     function totalSupply()
@@ -129,7 +148,7 @@ contract NonFungibleToken is ERC721 {
         internal
     {
         require(_to != address(0));
-        
+
         _clearTokenApproval(_tokenId);
         _removeTokenFromOwnersList(_from, _tokenId);
         _addTokenToOwnersList(_to, _tokenId);
