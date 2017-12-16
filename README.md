@@ -6,9 +6,9 @@
 
 This repository contains a generic implementation of the ERC721 non-fungible token standard that is fully-tested and adherent to the emerging ERC721 standard.
 
-We welcome contributions, revisions, and feedback.
+We welcome contributions, revisions, and feedback.  Heavily based off of [Decentraland's generic implementation](https://github.com/decentraland/land/blob/master/contracts/BasicNFT.sol).
 
-~Shameless plug~ -- built for use in [Dharma](https://dharma.io), a protocol for generic tokenized debt issuance and fundraising on blockchains supporting requisite smart contract functionality (i.e. EVM blockchains).  [Join us on our chat](https://chat.dharma.io) for any technical or general questions.
+~Shameless plug~: built for use in [Dharma](https://dharma.io), a protocol for generic tokenized debt issuance and fundraising on blockchains supporting requisite smart contract functionality (i.e. EVM blockchains).  [Join us on our chat](https://chat.dharma.io) for any technical or general questions.
 
 We use truffle for deployment, testing, and development, and use [Typescript](https://www.typescriptlang.org/) for testing and deployment.
 
