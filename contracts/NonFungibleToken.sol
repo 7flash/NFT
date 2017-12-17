@@ -49,7 +49,6 @@ contract NonFungibleToken is DetailedERC721 {
 
     function name()
         public
-        constant
         returns (string _name)
     {
         return name;
@@ -57,7 +56,6 @@ contract NonFungibleToken is DetailedERC721 {
 
     function symbol()
         public
-        constant
         returns (string _symbol)
     {
         return symbol;
@@ -65,7 +63,6 @@ contract NonFungibleToken is DetailedERC721 {
 
     function totalSupply()
         public
-        constant
         returns (uint256 _totalSupply)
     {
         return numTokensTotal;
@@ -73,7 +70,6 @@ contract NonFungibleToken is DetailedERC721 {
 
     function balanceOf(address _owner)
         public
-        constant
         returns (uint _balance)
     {
         return ownerToTokensOwned[_owner].length;
@@ -81,7 +77,6 @@ contract NonFungibleToken is DetailedERC721 {
 
     function ownerOf(uint _tokenId)
         public
-        constant
         returns (address _owner)
     {
         return tokenIdToOwner[_tokenId];
@@ -89,7 +84,6 @@ contract NonFungibleToken is DetailedERC721 {
 
     function tokenMetadata(uint _tokenId)
         public
-        constant
         returns (string _infoUrl)
     {
         return tokenIdToMetadata[_tokenId];
@@ -130,7 +124,6 @@ contract NonFungibleToken is DetailedERC721 {
 
     function tokenOfOwnerByIndex(address _owner, uint _index)
         public
-        constant
         returns (uint _tokenId)
     {
         return ownerToTokensOwned[_owner][_index];
@@ -138,7 +131,6 @@ contract NonFungibleToken is DetailedERC721 {
 
     function getOwnerTokens(address _owner)
         public
-        constant
         returns (uint[] _tokenIds)
     {
         return ownerToTokensOwned[_owner];
@@ -146,7 +138,6 @@ contract NonFungibleToken is DetailedERC721 {
 
     function implementsERC721()
         public
-        constant
         returns (bool _implementsERC721)
     {
         return true;
@@ -154,7 +145,6 @@ contract NonFungibleToken is DetailedERC721 {
 
     function getApproved(uint _tokenId)
         public
-        constant
         returns (address _approved)
     {
         return tokenIdToApprovedAddress[_tokenId];
