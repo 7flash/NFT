@@ -9,13 +9,13 @@ pragma solidity 0.4.18;
  */
 contract ERC721 {
     // Function
-    function totalSupply() public constant returns (uint256 _totalSupply);
-    function balanceOf(address _owner) public constant returns (uint256 _balance);
-    function ownerOf(uint _tokenId) public constant returns (address _owner);
+    function totalSupply() public returns (uint256 _totalSupply);
+    function balanceOf(address _owner) public returns (uint256 _balance);
+    function ownerOf(uint _tokenId) public returns (address _owner);
     function approve(address _to, uint _tokenId) public;
     function transferFrom(address _from, address _to, uint _tokenId) public;
     function transfer(address _to, uint _tokenId) public;
-    function implementsERC721() public constant returns (bool _implementsERC721);
+    function implementsERC721() public returns (bool _implementsERC721);
 
     // Events
     event Transfer(address indexed _from, address indexed _to, uint256 _tokenId);
