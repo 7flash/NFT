@@ -1,7 +1,7 @@
 pragma solidity 0.4.18;
 
 import "./DetailedERC721.sol";
-import "node_modules/zeppelin-solidity/contracts/math/SafeMath.sol";
+import "../node_modules/zeppelin-solidity/contracts/math/SafeMath.sol";
 
 
 /**
