@@ -15,6 +15,7 @@
       "types/*.d.ts",
       "types/*.ts",
       "test/**/*.ts",
+      "test/ts/utils/*.ts",
       "migrations/*.ts"
     ]
 }

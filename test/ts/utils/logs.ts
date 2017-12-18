@@ -1,8 +1,4 @@
-import {
-    Address,
-    Log,
-    UInt,
-} from "../../../types/contracts";
+import {Address, UInt, Log} from "../../../types/solidity";
 
 export function LogTransfer(
     from: Address,
