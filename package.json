@@ -3,13 +3,14 @@
   "version": "0.0.1",
   "description": "A generic implementation of the ERC721 Standard for non-fungible tokens",
   "scripts": {
+    "generate-typings": "abi-gen --abiGlob './build/contracts/*.json' --templates ./types/contract_templates --output ./types",
     "transpile": "rm -rf ./transpiled; copyfiles ./build/**/* ./transpiled; tsc",
     "lint-ts": "tslint migrations/*.ts test/**/*.ts",
     "lint-sol": "solhint contracts/*.sol contracts/**/*.sol",
     "lint": "npm run lint-ts; npm run lint-sol",
     "compile": "rm -rf build/contracts; truffle compile",
     "migrate": "npm run transpile; truffle migrate",
-    "test": "npm run transpile; truffle test",
+    "test": "npm run compile; npm run generate-typings; npm run transpile; truffle test",
     "testrpc": "ganache-cli --networkId 50"
   },
   "repository": "git@github.com:dharmaprotocol/NonFungibleToken.git",
@@ -19,13 +20,17 @@
     "lint"
   ],
   "dependencies": {
+    "@0xproject/abi-gen": "^0.0.2",
     "zeppelin-solidity": "^1.4.0"
   },
   "devDependencies": {
+    "@0xproject/types": "^0.1.0",
+    "@0xproject/utils": "^0.1.0",
     "@types/bignumber.js": "^4.0.3",
     "@types/chai": "^4.0.5",
     "@types/chai-as-promised": "^7.1.0",
     "@types/lodash": "^4.14.88",
+    "@types/node": "^8.5.1",
     "bignumber.js": "^4.1.0",
     "chai": "^4.1.2",
     "chai-as-promised": "^7.1.1",

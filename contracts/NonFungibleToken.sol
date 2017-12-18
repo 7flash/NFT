@@ -1,6 +1,6 @@
 pragma solidity 0.4.18;
 
-import "./DetailedERC721.sol";
+import "contracts/DetailedERC721.sol";
 import "node_modules/zeppelin-solidity/contracts/math/SafeMath.sol";
 
 
@@ -24,11 +24,11 @@ contract NonFungibleToken is DetailedERC721 {
 
     uint public numTokensTotal;
 
-    mapping(uint => address) public tokenIdToOwner;
-    mapping(uint => address) public tokenIdToApprovedAddress;
-    mapping(uint => string) public tokenIdToMetadata;
-    mapping(address => uint[]) public ownerToTokensOwned;
-    mapping(uint => uint) public tokenIdToOwnerArrayIndex;
+    mapping(uint => address) internal tokenIdToOwner;
+    mapping(uint => address) internal tokenIdToApprovedAddress;
+    mapping(uint => string) internal tokenIdToMetadata;
+    mapping(address => uint[]) internal ownerToTokensOwned;
+    mapping(uint => uint) internal tokenIdToOwnerArrayIndex;
 
     event Transfer(
         address indexed _from,
@@ -49,6 +49,7 @@ contract NonFungibleToken is DetailedERC721 {
 
     function name()
         public
+        view
         returns (string _name)
     {
         return name;
@@ -56,6 +57,7 @@ contract NonFungibleToken is DetailedERC721 {
 
     function symbol()
         public
+        view
         returns (string _symbol)
     {
         return symbol;
@@ -63,6 +65,7 @@ contract NonFungibleToken is DetailedERC721 {
 
     function totalSupply()
         public
+        view
         returns (uint256 _totalSupply)
     {
         return numTokensTotal;
@@ -70,6 +73,7 @@ contract NonFungibleToken is DetailedERC721 {
 
     function balanceOf(address _owner)
         public
+        view
         returns (uint _balance)
     {
         return ownerToTokensOwned[_owner].length;
@@ -77,6 +81,7 @@ contract NonFungibleToken is DetailedERC721 {
 
     function ownerOf(uint _tokenId)
         public
+        view
         returns (address _owner)
     {
         return tokenIdToOwner[_tokenId];
@@ -84,6 +89,7 @@ contract NonFungibleToken is DetailedERC721 {
 
     function tokenMetadata(uint _tokenId)
         public
+        view
         returns (string _infoUrl)
     {
         return tokenIdToMetadata[_tokenId];
@@ -124,6 +130,7 @@ contract NonFungibleToken is DetailedERC721 {
 
     function tokenOfOwnerByIndex(address _owner, uint _index)
         public
+        view
         returns (uint _tokenId)
     {
         return ownerToTokensOwned[_owner][_index];
@@ -131,6 +138,7 @@ contract NonFungibleToken is DetailedERC721 {
 
     function getOwnerTokens(address _owner)
         public
+        view
         returns (uint[] _tokenIds)
     {
         return ownerToTokensOwned[_owner];
@@ -138,6 +146,7 @@ contract NonFungibleToken is DetailedERC721 {
 
     function implementsERC721()
         public
+        view
         returns (bool _implementsERC721)
     {
         return true;
@@ -145,6 +154,7 @@ contract NonFungibleToken is DetailedERC721 {
 
     function getApproved(uint _tokenId)
         public
+        view
         returns (address _approved)
     {
         return tokenIdToApprovedAddress[_tokenId];

@@ -1,5 +1,6 @@
 {
     "compilerOptions": {
+        "lib": [ "es2015" ],
         "outDir": "./transpiled/",
         "sourceMap": true,
         "noImplicitAny": true,
@@ -10,8 +11,9 @@
     },
     "include": [
       "node_modules/web3-typescript-typings/index.d.ts",
-      "types/global.d.ts",
-      "types/modules.d.ts",
+      "types/*.d.ts",
+      "types/*.d.ts",
+      "types/*.ts",
       "test/**/*.ts",
       "migrations/*.ts"
     ]
