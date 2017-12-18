@@ -20,10 +20,10 @@
     "lint"
   ],
   "dependencies": {
-    "@0xproject/abi-gen": "^0.0.2",
     "zeppelin-solidity": "^1.4.0"
   },
   "devDependencies": {
+    "@0xproject/abi-gen": "^0.0.2",
     "@0xproject/types": "^0.1.0",
     "@0xproject/utils": "^0.1.0",
     "@types/bignumber.js": "^4.0.3",
