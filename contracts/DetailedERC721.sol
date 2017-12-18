@@ -1,6 +1,6 @@
 pragma solidity 0.4.18;
 
-import "contracts/ERC721.sol";
+import "./ERC721.sol";
 
 
 /**
