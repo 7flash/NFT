@@ -80,10 +80,6 @@ contract("Non-Fungible Token", (ACCOUNTS) => {
     });
 
     describe("#totalSupply()", async () => {
-        before(async() => {
-            mintableNft = await mintableNftContract.new();
-        });
-
         it("should return 0 for initial supply", async () => {
             await expect(mintableNft.totalSupply.callAsync()).to.eventually.bignumber.equal(0);
         });
