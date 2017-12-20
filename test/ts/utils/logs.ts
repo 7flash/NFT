@@ -2,12 +2,13 @@ import {Address, UInt, Log} from "../../../types/solidity";
 import * as _ from "lodash";
 import * as ABIDecoder from "abi-decoder";
 import * as BigNumber from "bignumber.js";
+import * as Web3 from "web3";
 
 export function LogTransfer(
     contract: Address,
     from: Address,
     to: Address,
-    tokenId: UInt,
+    tokenId: BigNumber.BigNumber,
 ): ABIDecoder.DecodedLog {
     return {
         address: contract,

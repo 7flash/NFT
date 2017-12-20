@@ -4,6 +4,7 @@ import * as Web3 from "web3";
 import * as ABIDecoder from "abi-decoder";
 
 import {MintableNonFungibleTokenContract} from "../../types/mintable_non_fungible_token";
+import {BigNumberSetup} from "./utils/bignumber_setup.js";
 import {chaiSetup} from "./utils/chai_setup.js";
 import {INVALID_OPCODE, REVERT_ERROR} from "./utils/constants";
 import {LogApproval, LogTransfer} from "./utils/logs";
@@ -11,6 +12,9 @@ import {LogApproval, LogTransfer} from "./utils/logs";
 // Set up Chai
 chaiSetup.configure();
 const expect = chai.expect;
+
+// Configure BigNumber exponentiation
+BigNumberSetup.configure();
 
 // Import truffle contract instance
 const mintableNftContract = artifacts.require("MintableNonFungibleToken");
@@ -330,7 +334,7 @@ contract("Non-Fungible Token", (ACCOUNTS) => {
 
             it("should emit approval clear log", () => {
                 const logExpected =
-                    LogApproval(mintableNft.address, TOKEN_OWNER_1, NULL_ADDRESS, TOKEN_ID_3);
+                    LogApproval(mintableNft.address, TOKEN_OWNER_3, NULL_ADDRESS, TOKEN_ID_3);
 
                 expect(approvalLog).to.deep.equal(logExpected);
             });

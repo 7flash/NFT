@@ -168,7 +168,7 @@ contract NonFungibleToken is DetailedERC721 {
         _clearTokenApproval(_tokenId);
         _removeTokenFromOwnersList(_from, _tokenId);
         _addTokenToOwnersList(_to, _tokenId);
-        Transfer(msg.sender, _to, _tokenId);
+        Transfer(_from, _to, _tokenId);
     }
 
     function _clearTokenApproval(uint _tokenId)
