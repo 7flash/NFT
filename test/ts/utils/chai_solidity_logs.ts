@@ -16,7 +16,7 @@ export default function ChaiSolidityLogs(chai: any, utils: any): void {
     });
 
     const equals = function (_super: () => void) {
-        return function (val: any, msg: string) {
+        return function (val: Log, msg: string) {
             if (!utils.flag(this, 'solidityLogs')) {
                 _super.apply(this, arguments);
             } else {

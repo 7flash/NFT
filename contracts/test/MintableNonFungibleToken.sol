@@ -1,8 +1,8 @@
 pragma solidity 0.4.18;
 
 import "../NonFungibleToken.sol";
-import "node_modules/zeppelin-solidity/contracts/ownership/Ownable.sol";
-import "node_modules/zeppelin-solidity/contracts/math/SafeMath.sol";
+import "zeppelin-solidity/contracts/ownership/Ownable.sol";
+import "zeppelin-solidity/contracts/math/SafeMath.sol";
 
 
 /**

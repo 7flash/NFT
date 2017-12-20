@@ -1,4 +1,5 @@
 import * as BigNumber from "bignumber.js";
+import * as Web3 from "web3";
 
 // Solidity type definitions for easy readability
 declare type Address = string;

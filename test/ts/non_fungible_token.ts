@@ -1,15 +1,22 @@
 import * as BigNumber from "bignumber.js";
 import * as chai from "chai";
 import * as Web3 from "web3";
+import * as ABIDecoder from "abi-decoder";
+
 import {MintableNonFungibleTokenContract} from "../../types/mintable_non_fungible_token";
 import {chaiSetup} from "./utils/chai_setup.js";
 import {INVALID_OPCODE, REVERT_ERROR} from "./utils/constants";
 import {LogApproval, LogTransfer} from "./utils/logs";
 
+// Set up Chai
 chaiSetup.configure();
 const expect = chai.expect;
 
+// Import truffle contract instance
 const mintableNftContract = artifacts.require("MintableNonFungibleToken");
+
+// Initialize ABI Decoder for deciphering log receipts
+ABIDecoder.addABI(mintableNftContract.abi);
 
 contract("Non-Fungible Token", (ACCOUNTS) => {
     let mintableNft: MintableNonFungibleTokenContract;
@@ -185,11 +192,11 @@ contract("Non-Fungible Token", (ACCOUNTS) => {
             });
 
             it("should emit transfer log", async () => {
-                const logReturned = res.logs[0];
+                const [approvalLog, transferLog] = ABIDecoder.decodeLogs(res.logs);
                 const logExpected =
-                    LogTransfer(TOKEN_OWNER_1, TOKEN_OWNER_2, TOKEN_ID_1);
+                    LogTransfer(mintableNft.address, TOKEN_OWNER_1, TOKEN_OWNER_2, TOKEN_ID_1);
 
-                expect(logReturned).to.solidityLogs.equal(logExpected);
+                expect(transferLog).to.deep.equal(logExpected);
             });
 
             it("should belong to new owner", async () => {
@@ -256,11 +263,11 @@ contract("Non-Fungible Token", (ACCOUNTS) => {
             });
 
             it("should emit transfer log", async () => {
-                const logReturned = res.logs[0];
+                const [approvalLog, transferLog] = ABIDecoder.decodeLogs(res.logs);
                 const logExpected =
-                    LogTransfer(TOKEN_OWNER_2, TOKEN_OWNER_2, TOKEN_ID_1);
+                    LogTransfer(mintableNft.address, TOKEN_OWNER_2, TOKEN_OWNER_2, TOKEN_ID_1);
 
-                expect(logReturned).to.solidityLogs.deep.equal(logExpected);
+                expect(transferLog).to.deep.equal(logExpected);
             });
 
             it("should belong to same owner", async () => {
@@ -307,6 +314,8 @@ contract("Non-Fungible Token", (ACCOUNTS) => {
 
         describe("user transfers token with outstanding approval", () => {
             let res: Web3.TransactionReceipt;
+            let approvalLog: ABIDecoder.DecodedLog;
+            let transferLog: ABIDecoder.DecodedLog;
 
             before(async () => {
                 await mintableNft.approve.sendTransactionAsync(
@@ -315,22 +324,22 @@ contract("Non-Fungible Token", (ACCOUNTS) => {
                     .sendTransactionAsync(TOKEN_OWNER_1, TOKEN_ID_3,
                         { from: TOKEN_OWNER_3 });
                 res = await web3.eth.getTransactionReceipt(txHash);
+
+                [approvalLog, transferLog] = ABIDecoder.decodeLogs(res.logs);
             });
 
             it("should emit approval clear log", () => {
-                const logReturned = res.logs[0];
                 const logExpected =
-                    LogApproval(TOKEN_OWNER_1, NULL_ADDRESS, TOKEN_ID_3);
+                    LogApproval(mintableNft.address, TOKEN_OWNER_1, NULL_ADDRESS, TOKEN_ID_3);
 
-                expect(logReturned).to.solidityLogs.deep.equal(logExpected);
+                expect(approvalLog).to.deep.equal(logExpected);
             });
 
             it("should emit transfer log", () => {
-                const logReturned = res.logs[1];
                 const logExpected =
-                    LogTransfer(TOKEN_OWNER_3, TOKEN_OWNER_1, TOKEN_ID_3);
+                    LogTransfer(mintableNft.address, TOKEN_OWNER_3, TOKEN_OWNER_1, TOKEN_ID_3);
 
-                expect(logReturned).to.solidityLogs.deep.equal(logExpected);
+                expect(transferLog).to.deep.equal(logExpected);
             });
 
             it("should belong to new owner", async () => {
@@ -438,11 +447,11 @@ contract("Non-Fungible Token", (ACCOUNTS) => {
                 });
 
                 it("should emit approval log", () => {
-                    const logReturned = res.logs[0];
+                    const [approvalLog] = ABIDecoder.decodeLogs(res.logs);
                     const logExpected =
-                        LogApproval(TOKEN_OWNER_1, TOKEN_OWNER_2, TOKEN_ID_1);
+                        LogApproval(mintableNft.address, TOKEN_OWNER_1, TOKEN_OWNER_2, TOKEN_ID_1);
 
-                    expect(logReturned).to.solidityLogs.deep.equal(logExpected);
+                    expect(approvalLog).to.deep.equal(logExpected);
                 })
             });
 
@@ -461,11 +470,11 @@ contract("Non-Fungible Token", (ACCOUNTS) => {
                 });
 
                 it("should emit approval log", () => {
-                    const logReturned = res.logs[0];
+                    const [approvalLog] = ABIDecoder.decodeLogs(res.logs);
                     const logExpected =
-                        LogApproval(TOKEN_OWNER_1, TOKEN_OWNER_3, TOKEN_ID_1);
+                        LogApproval(mintableNft.address, TOKEN_OWNER_1, TOKEN_OWNER_3, TOKEN_ID_1);
 
-                    expect(logReturned).to.solidityLogs.deep.equal(logExpected);
+                    expect(approvalLog).to.deep.equal(logExpected);
                 })
             });
 
@@ -484,11 +493,11 @@ contract("Non-Fungible Token", (ACCOUNTS) => {
                 });
 
                 it("should emit approval log", () => {
-                    const logReturned = res.logs[0];
+                    const [approvalLog] = ABIDecoder.decodeLogs(res.logs);
                     const logExpected =
-                        LogApproval(TOKEN_OWNER_1, TOKEN_OWNER_3, TOKEN_ID_1);
+                        LogApproval(mintableNft.address, TOKEN_OWNER_1, TOKEN_OWNER_3, TOKEN_ID_1);
 
-                    expect(logReturned).to.solidityLogs.deep.equal(logExpected);
+                    expect(approvalLog).to.deep.equal(logExpected);
                 })
             });
 
@@ -507,17 +516,17 @@ contract("Non-Fungible Token", (ACCOUNTS) => {
                 });
 
                 it("should emit approval log", () => {
-                    const logReturned = res.logs[0];
+                    const [approvalLog] = ABIDecoder.decodeLogs(res.logs);
                     const logExpected =
-                        LogApproval(TOKEN_OWNER_1, NULL_ADDRESS, TOKEN_ID_1);
+                        LogApproval(mintableNft.address, TOKEN_OWNER_1, NULL_ADDRESS, TOKEN_ID_1);
 
-                    expect(logReturned).to.solidityLogs.deep.equal(logExpected);
+                    expect(approvalLog).to.deep.equal(logExpected);
                 })
             });
         });
     });
 
-    describe("#transferFrom.sendTransactionAsync()", () => {
+    describe("#transferFrom()", () => {
         before(deployAndInitNft);
 
         describe("user transfers token from owner w/o approval...", () => {
@@ -560,27 +569,29 @@ contract("Non-Fungible Token", (ACCOUNTS) => {
 
             describe("...from other owner to himself", () => {
                 let res: Web3.TransactionReceipt;
+                let approvalLog: ABIDecoder.DecodedLog;
+                let transferLog: ABIDecoder.DecodedLog;
 
                 before(async () => {
                     const txHash = await mintableNft.transferFrom.sendTransactionAsync(TOKEN_OWNER_1, TOKEN_OWNER_3,
                         TOKEN_ID_1, { from: TOKEN_OWNER_2 });
-                    res = await web3.eth.getTransactionReceipt(txHash)
+                    res = await web3.eth.getTransactionReceipt(txHash);
+
+                    [approvalLog, transferLog] = ABIDecoder.decodeLogs(res.logs);
                 });
 
                 it("should emit approval clear log", () => {
-                    const logReturned = res.logs[0];
                     const logExpected =
-                        LogApproval(TOKEN_OWNER_1, NULL_ADDRESS, TOKEN_ID_1);
+                        LogApproval(mintableNft.address, TOKEN_OWNER_1, NULL_ADDRESS, TOKEN_ID_1);
 
-                    expect(logReturned).to.solidityLogs.deep.equal(logExpected);
+                    expect(approvalLog).to.deep.equal(logExpected);
                 });
 
                 it("should emit transfer log", () => {
-                    const logReturned = res.logs[1];
                     const logExpected =
-                        LogTransfer(TOKEN_OWNER_1, TOKEN_OWNER_3, TOKEN_ID_1);
+                        LogTransfer(mintableNft.address, TOKEN_OWNER_1, TOKEN_OWNER_3, TOKEN_ID_1);
 
-                    expect(logReturned).to.solidityLogs.deep.equal(logExpected);
+                    expect(transferLog).to.deep.equal(logExpected);
                 });
 
                 it("should belong to new owner", async () => {
