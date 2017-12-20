@@ -1,7 +1,6 @@
 pragma solidity 0.4.18;
 
 import "./DetailedERC721.sol";
-import "zeppelin-solidity/contracts/math/SafeMath.sol";
 
 
 /**
@@ -17,8 +16,6 @@ import "zeppelin-solidity/contracts/math/SafeMath.sol";
  * Implementation Author: Nadav Hollander <nadav at dharma.io>
  */
 contract NonFungibleToken is DetailedERC721 {
-    using SafeMath for uint;
-
     string public name;
     string public symbol;
 
