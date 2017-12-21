@@ -13,6 +13,8 @@ import "zeppelin-solidity/contracts/math/SafeMath.sol";
 contract MintableNonFungibleToken is NonFungibleToken {
     using SafeMath for uint;
 
+    event Mint(address indexed _to, uint256 indexed _tokenId);
+
     modifier onlyNonexistentToken(uint _tokenId) {
         require(tokenIdToOwner[_tokenId] == address(0));
         _;
@@ -27,5 +29,7 @@ contract MintableNonFungibleToken is NonFungibleToken {
         _insertTokenMetadata(_tokenId, _metadata);
 
         numTokensTotal = numTokensTotal.add(1);
+
+        Mint(_owner, _tokenId);
     }
 }
