@@ -1,7 +1,6 @@
 pragma solidity 0.4.18;
 
 import "./NonFungibleToken.sol";
-import "zeppelin-solidity/contracts/ownership/Ownable.sol";
 import "zeppelin-solidity/contracts/math/SafeMath.sol";
 
 
@@ -11,7 +10,7 @@ import "zeppelin-solidity/contracts/math/SafeMath.sol";
  * Test wrapper for NonFungibleToken that gives the contract's owner the ability
  * to mint NFTs.
  */
-contract MintableNonFungibleToken is NonFungibleToken, Ownable {
+contract MintableNonFungibleToken is NonFungibleToken {
     using SafeMath for uint;
 
     modifier onlyNonexistentToken(uint _tokenId) {
@@ -21,7 +20,6 @@ contract MintableNonFungibleToken is NonFungibleToken, Ownable {
 
     function mint(address _owner, uint256 _tokenId, string _metadata)
         public
-        onlyOwner
         onlyNonexistentToken(_tokenId)
     {
         _setTokenOwner(_tokenId, _owner);
