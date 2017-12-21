@@ -5,10 +5,10 @@ import "zeppelin-solidity/contracts/math/SafeMath.sol";
 
 
 /**
- * @title TestNonFungibleToken
+ * @title MintableNonFungibleToken
  *
- * Test wrapper for NonFungibleToken that gives the contract's owner the ability
- * to mint NFTs.
+ * Superset of the ERC721 standard that allows for the minting
+ * of non-fungible tokens.
  */
 contract MintableNonFungibleToken is NonFungibleToken {
     using SafeMath for uint;
