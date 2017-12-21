@@ -81,7 +81,7 @@ contract NonFungibleToken is DetailedERC721 {
         view
         returns (address _owner)
     {
-        return tokenIdToOwner[_tokenId];
+        return _ownerOf(_tokenId);
     }
 
     function tokenMetadata(uint _tokenId)
@@ -172,6 +172,14 @@ contract NonFungibleToken is DetailedERC721 {
         _removeTokenFromOwnersList(_from, _tokenId);
         _setTokenOwner(_tokenId, _to);
         _addTokenToOwnersList(_to, _tokenId);
+    }
+
+    function _ownerOf(uint _tokenId)
+        internal
+        view
+        returns (address _owner)
+    {
+        return tokenIdToOwner[_tokenId];
     }
 
     function _getApproved(uint _tokenId)
