@@ -40,7 +40,7 @@ contract NonFungibleToken is DetailedERC721 {
     );
 
     modifier onlyExtantToken(uint _tokenId) {
-        require(tokenIdToOwner[_tokenId] != address(0));
+        require(ownerOf(_tokenId) != address(0));
         _;
     }
 
