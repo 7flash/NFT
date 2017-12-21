@@ -138,7 +138,7 @@ contract NonFungibleToken is DetailedERC721 {
         view
         returns (uint _tokenId)
     {
-        return _getOwnerTokens(_owner)[_index];
+        return _getOwnerTokenByIndex(_owner, _index);
     }
 
     function getOwnerTokens(address _owner)
@@ -185,6 +185,13 @@ contract NonFungibleToken is DetailedERC721 {
         returns (uint[] _tokens)
     {
         return ownerToTokensOwned[_owner];
+    }
+
+    function _getOwnerTokenByIndex(address _owner, uint _index)
+        internal
+        returns (uint _tokens)
+    {
+        return ownerToTokensOwned[_owner][_index];
     }
 
     function _clearTokenApproval(uint _tokenId)
