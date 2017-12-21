@@ -1,6 +1,6 @@
 pragma solidity 0.4.18;
 
-import "../NonFungibleToken.sol";
+import "./NonFungibleToken.sol";
 import "zeppelin-solidity/contracts/ownership/Ownable.sol";
 import "zeppelin-solidity/contracts/math/SafeMath.sol";
 
@@ -31,9 +31,10 @@ contract MintableNonFungibleToken is NonFungibleToken, Ownable {
         onlyOwner
         onlyNonexistentToken(_tokenId)
     {
+        _setTokenOwner(_tokenId, _owner);
         _addTokenToOwnersList(_owner, _tokenId);
+        _insertTokenMetadata(_tokenId, _metadata);
 
         numTokensTotal = numTokensTotal.add(1);
-        tokenIdToMetadata[_tokenId] = _metadata;
     }
 }

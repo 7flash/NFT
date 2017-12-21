@@ -170,6 +170,7 @@ contract NonFungibleToken is DetailedERC721 {
     {
         _clearTokenApproval(_tokenId);
         _removeTokenFromOwnersList(_from, _tokenId);
+        _setTokenOwner(_tokenId, _to);
         _addTokenToOwnersList(_to, _tokenId);
     }
 
@@ -203,11 +204,16 @@ contract NonFungibleToken is DetailedERC721 {
         tokenIdToApprovedAddress[_tokenId] = address(0);
     }
 
+    function _setTokenOwner(uint _tokenId, address _owner)
+        internal
+    {
+        tokenIdToOwner[_tokenId] = _owner;
+    }
+
     function _addTokenToOwnersList(address _owner, uint _tokenId)
         internal
     {
         ownerToTokensOwned[_owner].push(_tokenId);
-        tokenIdToOwner[_tokenId] = _owner;
         tokenIdToOwnerArrayIndex[_tokenId] =
             ownerToTokensOwned[_owner].length - 1;
     }
@@ -224,5 +230,11 @@ contract NonFungibleToken is DetailedERC721 {
 
         delete ownerToTokensOwned[_owner][length - 1];
         ownerToTokensOwned[_owner].length--;
+    }
+
+    function _insertTokenMetadata(uint _tokenId, string _metadata)
+        internal
+    {
+        tokenIdToMetadata[_tokenId] = _metadata;
     }
 }
