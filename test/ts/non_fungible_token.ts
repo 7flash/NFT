@@ -3,7 +3,7 @@ import * as chai from "chai";
 import * as Web3 from "web3";
 import * as ABIDecoder from "abi-decoder";
 
-import {MintableNonFungibleTokenContract} from "../../types/mintable_non_fungible_token";
+import {TestMintableNFTContract} from "../../types/generated/test_mintable_n_f_t";
 import {BigNumberSetup} from "./utils/bignumber_setup.js";
 import {chaiSetup} from "./utils/chai_setup.js";
 import {INVALID_OPCODE, REVERT_ERROR} from "./utils/constants";
@@ -17,13 +17,13 @@ const expect = chai.expect;
 BigNumberSetup.configure();
 
 // Import truffle contract instance
-const mintableNftContract = artifacts.require("MintableNonFungibleToken");
+const mintableNftContract = artifacts.require("TestMintableNFT");
 
 // Initialize ABI Decoder for deciphering log receipts
 ABIDecoder.addABI(mintableNftContract.abi);
 
 contract("Non-Fungible Token", (ACCOUNTS) => {
-    let mintableNft: MintableNonFungibleTokenContract;
+    let mintableNft: TestMintableNFTContract;
 
     const NFT_NAME = "Example NFT";
     const NFT_SYMBOL = "ENT";
@@ -56,7 +56,7 @@ contract("Non-Fungible Token", (ACCOUNTS) => {
         const web3ContractInstance =
             web3.eth.contract(instance.abi).at(instance.address);
 
-        mintableNft = new MintableNonFungibleTokenContract(
+        mintableNft = new TestMintableNFTContract(
             web3ContractInstance, TX_DEFAULTS);
     }
 

@@ -19,13 +19,6 @@ contract MintableNonFungibleToken is NonFungibleToken, Ownable {
         _;
     }
 
-    function MintableNonFungibleToken(string _name, string _symbol)
-        public
-    {
-        name = _name;
-        symbol = _symbol;
-    }
-
     function mint(address _owner, uint256 _tokenId, string _metadata)
         public
         onlyOwner
