@@ -110,19 +110,27 @@ contract NonFungibleToken is DetailedERC721 {
         public
         onlyExtantToken(_tokenId)
     {
-        require(tokenIdToApprovedAddress[_tokenId] == msg.sender);
-        require(tokenIdToOwner[_tokenId] == _from);
+        require(getApproved(_tokenId) == msg.sender);
+        require(ownerOf(_tokenId) == _from);
+        require(_to != address(0));
 
-        _transfer(_from, _to, _tokenId);
+        _clearApprovalAndTransfer(_from, _to, _tokenId);
+
+        Approval(_from, 0, _tokenId);
+        Transfer(_from, _to, _tokenId);
     }
 
     function transfer(address _to, uint _tokenId)
         public
         onlyExtantToken(_tokenId)
     {
-        require(tokenIdToOwner[_tokenId] == msg.sender);
+        require(ownerOf(_tokenId) == msg.sender);
+        require(_to != address(0));
 
-        _transfer(msg.sender, _to, _tokenId);
+        _clearApprovalAndTransfer(msg.sender, _to, _tokenId);
+
+        Approval(msg.sender, 0, _tokenId);
+        Transfer(msg.sender, _to, _tokenId);
     }
 
     function tokenOfOwnerByIndex(address _owner, uint _index)
@@ -130,7 +138,7 @@ contract NonFungibleToken is DetailedERC721 {
         view
         returns (uint _tokenId)
     {
-        return ownerToTokensOwned[_owner][_index];
+        return _getOwnerTokens(_owner)[_index];
     }
 
     function getOwnerTokens(address _owner)
@@ -138,7 +146,7 @@ contract NonFungibleToken is DetailedERC721 {
         view
         returns (uint[] _tokenIds)
     {
-        return ownerToTokensOwned[_owner];
+        return _getOwnerTokens(_owner);
     }
 
     function implementsERC721()
@@ -154,25 +162,35 @@ contract NonFungibleToken is DetailedERC721 {
         view
         returns (address _approved)
     {
-        return tokenIdToApprovedAddress[_tokenId];
+        return _getApproved(_tokenId);
     }
 
-    function _transfer(address _from, address _to, uint _tokenId)
+    function _clearApprovalAndTransfer(address _from, address _to, uint _tokenId)
         internal
     {
-        require(_to != address(0));
-
         _clearTokenApproval(_tokenId);
         _removeTokenFromOwnersList(_from, _tokenId);
         _addTokenToOwnersList(_to, _tokenId);
-        Transfer(_from, _to, _tokenId);
+    }
+
+    function _getApproved(uint _tokenId)
+        internal
+        returns (address _approved)
+    {
+        return tokenIdToApprovedAddress[_tokenId];
+    }
+
+    function _getOwnerTokens(address _owner)
+        internal
+        returns (uint[] _tokens)
+    {
+        return ownerToTokensOwned[_owner];
     }
 
     function _clearTokenApproval(uint _tokenId)
         internal
     {
         tokenIdToApprovedAddress[_tokenId] = address(0);
-        Approval(tokenIdToOwner[_tokenId], 0, _tokenId);
     }
 
     function _addTokenToOwnersList(address _owner, uint _tokenId)
