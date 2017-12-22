@@ -99,9 +99,9 @@ contract NonFungibleToken is DetailedERC721 {
         require(msg.sender == ownerOf(_tokenId));
         require(msg.sender != _to);
 
-        if (tokenIdToApprovedAddress[_tokenId] != address(0) ||
+        if (_getApproved(_tokenId) != address(0) ||
                 _to != address(0)) {
-            tokenIdToApprovedAddress[_tokenId] = _to;
+            _approve(_to, _tokenId);
             Approval(msg.sender, _to, _tokenId);
         }
     }
@@ -180,6 +180,12 @@ contract NonFungibleToken is DetailedERC721 {
         returns (address _owner)
     {
         return tokenIdToOwner[_tokenId];
+    }
+
+    function _approve(address _to, uint _tokenId)
+        internal
+    {
+        tokenIdToApprovedAddress[_tokenId] = _to;
     }
 
     function _getApproved(uint _tokenId)
