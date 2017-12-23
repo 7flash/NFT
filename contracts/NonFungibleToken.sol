@@ -1,7 +1,6 @@
 pragma solidity 0.4.18;
 
 import "./DetailedERC721.sol";
-import "node_modules/zeppelin-solidity/contracts/math/SafeMath.sol";
 
 
 /**
@@ -17,8 +16,6 @@ import "node_modules/zeppelin-solidity/contracts/math/SafeMath.sol";
  * Implementation Author: Nadav Hollander <nadav at dharma.io>
  */
 contract NonFungibleToken is DetailedERC721 {
-    using SafeMath for uint;
-
     string public name;
     string public symbol;
 
@@ -43,7 +40,7 @@ contract NonFungibleToken is DetailedERC721 {
     );
 
     modifier onlyExtantToken(uint _tokenId) {
-        require(tokenIdToOwner[_tokenId] != address(0));
+        require(ownerOf(_tokenId) != address(0));
         _;
     }
 
@@ -84,7 +81,7 @@ contract NonFungibleToken is DetailedERC721 {
         view
         returns (address _owner)
     {
-        return tokenIdToOwner[_tokenId];
+        return _ownerOf(_tokenId);
     }
 
     function tokenMetadata(uint _tokenId)
@@ -102,9 +99,9 @@ contract NonFungibleToken is DetailedERC721 {
         require(msg.sender == ownerOf(_tokenId));
         require(msg.sender != _to);
 
-        if (tokenIdToApprovedAddress[_tokenId] != address(0) ||
+        if (_getApproved(_tokenId) != address(0) ||
                 _to != address(0)) {
-            tokenIdToApprovedAddress[_tokenId] = _to;
+            _approve(_to, _tokenId);
             Approval(msg.sender, _to, _tokenId);
         }
     }
@@ -113,19 +110,27 @@ contract NonFungibleToken is DetailedERC721 {
         public
         onlyExtantToken(_tokenId)
     {
-        require(tokenIdToApprovedAddress[_tokenId] == msg.sender);
-        require(tokenIdToOwner[_tokenId] == _from);
+        require(getApproved(_tokenId) == msg.sender);
+        require(ownerOf(_tokenId) == _from);
+        require(_to != address(0));
 
-        _transfer(_from, _to, _tokenId);
+        _clearApprovalAndTransfer(_from, _to, _tokenId);
+
+        Approval(_from, 0, _tokenId);
+        Transfer(_from, _to, _tokenId);
     }
 
     function transfer(address _to, uint _tokenId)
         public
         onlyExtantToken(_tokenId)
     {
-        require(tokenIdToOwner[_tokenId] == msg.sender);
+        require(ownerOf(_tokenId) == msg.sender);
+        require(_to != address(0));
 
-        _transfer(msg.sender, _to, _tokenId);
+        _clearApprovalAndTransfer(msg.sender, _to, _tokenId);
+
+        Approval(msg.sender, 0, _tokenId);
+        Transfer(msg.sender, _to, _tokenId);
     }
 
     function tokenOfOwnerByIndex(address _owner, uint _index)
@@ -133,7 +138,7 @@ contract NonFungibleToken is DetailedERC721 {
         view
         returns (uint _tokenId)
     {
-        return ownerToTokensOwned[_owner][_index];
+        return _getOwnerTokenByIndex(_owner, _index);
     }
 
     function getOwnerTokens(address _owner)
@@ -141,7 +146,7 @@ contract NonFungibleToken is DetailedERC721 {
         view
         returns (uint[] _tokenIds)
     {
-        return ownerToTokensOwned[_owner];
+        return _getOwnerTokens(_owner);
     }
 
     function implementsERC721()
@@ -157,32 +162,72 @@ contract NonFungibleToken is DetailedERC721 {
         view
         returns (address _approved)
     {
+        return _getApproved(_tokenId);
+    }
+
+    function _clearApprovalAndTransfer(address _from, address _to, uint _tokenId)
+        internal
+    {
+        _clearTokenApproval(_tokenId);
+        _removeTokenFromOwnersList(_from, _tokenId);
+        _setTokenOwner(_tokenId, _to);
+        _addTokenToOwnersList(_to, _tokenId);
+    }
+
+    function _ownerOf(uint _tokenId)
+        internal
+        view
+        returns (address _owner)
+    {
+        return tokenIdToOwner[_tokenId];
+    }
+
+    function _approve(address _to, uint _tokenId)
+        internal
+    {
+        tokenIdToApprovedAddress[_tokenId] = _to;
+    }
+
+    function _getApproved(uint _tokenId)
+        internal
+        view
+        returns (address _approved)
+    {
         return tokenIdToApprovedAddress[_tokenId];
     }
 
-    function _transfer(address _from, address _to, uint _tokenId)
+    function _getOwnerTokens(address _owner)
         internal
+        view
+        returns (uint[] _tokens)
     {
-        require(_to != address(0));
+        return ownerToTokensOwned[_owner];
+    }
 
-        _clearTokenApproval(_tokenId);
-        _removeTokenFromOwnersList(_from, _tokenId);
-        _addTokenToOwnersList(_to, _tokenId);
-        Transfer(msg.sender, _to, _tokenId);
+    function _getOwnerTokenByIndex(address _owner, uint _index)
+        internal
+        view
+        returns (uint _tokens)
+    {
+        return ownerToTokensOwned[_owner][_index];
     }
 
     function _clearTokenApproval(uint _tokenId)
         internal
     {
         tokenIdToApprovedAddress[_tokenId] = address(0);
-        Approval(tokenIdToOwner[_tokenId], 0, _tokenId);
+    }
+
+    function _setTokenOwner(uint _tokenId, address _owner)
+        internal
+    {
+        tokenIdToOwner[_tokenId] = _owner;
     }
 
     function _addTokenToOwnersList(address _owner, uint _tokenId)
         internal
     {
         ownerToTokensOwned[_owner].push(_tokenId);
-        tokenIdToOwner[_tokenId] = _owner;
         tokenIdToOwnerArrayIndex[_tokenId] =
             ownerToTokensOwned[_owner].length - 1;
     }
@@ -199,5 +244,11 @@ contract NonFungibleToken is DetailedERC721 {
 
         delete ownerToTokensOwned[_owner][length - 1];
         ownerToTokensOwned[_owner].length--;
+    }
+
+    function _insertTokenMetadata(uint _tokenId, string _metadata)
+        internal
+    {
+        tokenIdToMetadata[_tokenId] = _metadata;
     }
 }

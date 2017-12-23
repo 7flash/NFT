@@ -3,6 +3,8 @@ import * as _ from 'lodash';
 import * as Web3 from 'web3';
 
 export class BaseContract {
+    public address: string;
+
     protected web3ContractInstance: Web3.ContractInstance;
     protected defaults: Partial<TxData>;
     protected async applyDefaultsToTxDataAsync<T extends TxData|TxDataPayable>(
@@ -28,6 +30,7 @@ export class BaseContract {
     }
     constructor(web3ContractInstance: Web3.ContractInstance, defaults: Partial<TxData>) {
         this.web3ContractInstance = web3ContractInstance;
+        this.address = web3ContractInstance.address;
         this.defaults = defaults;
     }
 }
